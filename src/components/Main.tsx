@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Container = styled.main`
+    width: 1440px;
     height: 680px;
     display: flex;
     font-family: Roboto, sans-serif;
