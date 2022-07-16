@@ -5,13 +5,14 @@ import { fetchComments, fetchUsers, setActiveChat } from '../app/usersSlice';
 import { IoSearchOutline, IoCloseOutline } from 'react-icons/io5';
 
 const Wrapper = styled.aside`
-    width: 20%;
+    position: relative;
+    width: 25%;
     background-color: #f2f2f2;
     border-right: 1px solid #DADEE0;
 `;
 
 const SelectTab = styled.form`
-    position: relative;
+    // position: relative;
     display: flex;
     justify-content: space-between;
 `;
@@ -43,7 +44,7 @@ const TabType = styled.label`
 const TabContent = styled.div`
     display: none;
     width: 100%;
-    height: 550px;
+    height: 75%;
     position: absolute;
     top: 120px;
     overflow: auto;

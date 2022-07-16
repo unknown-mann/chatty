@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 const Wrapper = styled.section`
-    width: 80%;
+    width: 75%;
 `;
 
 const Bar = styled.div`
@@ -56,7 +56,7 @@ const TextWrapper = styled.div`
 const TextArea = styled.textarea.attrs({
     placeholder: "Type here..",
 })`
-    width: 1100px;
+    width: 90%;
     margin: 0 auto;
     padding: 10px;
     font-family: Roboto, sans-serif;
@@ -96,9 +96,9 @@ const ChatWindow = () => {
                     {user.name}
                 </User>
                 <AddButton>
-                <button onClick={() => logout()}>Log out</button>
                     <IoPersonAdd size="20px" />
                 </AddButton>
+                <button onClick={() => logout()}>Log out</button>
             </Bar>
             <Window>
                 <ChatContent>

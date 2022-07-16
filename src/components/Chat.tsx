@@ -6,9 +6,10 @@ import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
 
 const Wrapper = styled.div`
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 `;
 
 const Chat = () => {

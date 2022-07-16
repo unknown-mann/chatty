@@ -58,7 +58,6 @@ const userSlice = createSlice({
         builder
             .addCase(fetchUsers.fulfilled, (state, action) => {
                 state.users = action.payload
-                console.log(action.payload)
             })
             .addCase(fetchComments.fulfilled, (state, action) => {
                 state.comments = action.payload
