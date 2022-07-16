@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { fetchComments, fetchUsers, setActiveChat } from '../app/usersSlice';
+import { useAppDispatch } from '../hooks';
+import { setActiveChat } from '../app/usersSlice';
 import { IoSearchOutline, IoCloseOutline } from 'react-icons/io5';
+import { useFetchUsersQuery, useFetchCommentsQuery } from '../api/apiSlice';
 
 const Wrapper = styled.aside`
     position: relative;
@@ -115,13 +116,25 @@ const Sidebar = () => {
     const [searchValue, setSearchValue] = useState('')
 
     const dispatch = useAppDispatch()
-    const { users, comments } = useAppSelector(state => state.users)
+    // const { users, comments } = useAppSelector(state => state.users)
 
-    useEffect(() => {
-        dispatch(fetchUsers())
-        dispatch(fetchComments())
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    // useEffect(() => {
+    //     dispatch(fetchUsers())
+    //     dispatch(fetchComments())
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [])
+
+    const {
+        data: users,
+        isLoading: isUsersLoading,
+        isSuccess: isUsersSuccess,
+        isError: isUsersError,
+        error: usersError
+    } = useFetchUsersQuery()
+
+    const {
+        data: comments,
+    } = useFetchCommentsQuery()
 
     const [activeTab, setActiveTab] = useState(0)
 
@@ -135,7 +148,7 @@ const Sidebar = () => {
                     </TabType>
                     <TabContent>
                         <UsersList>
-                            {comments.map(comment => (
+                            {comments && comments.map(comment => (
                                 <UserItem onClickCapture={() => setActiveTab(comment.id)} active={activeTab === comment.id} key={comment.id} onClick={() => { dispatch(setActiveChat(comment)) }}>
                                     <Avatar />
                                     {comment.email}
@@ -151,7 +164,7 @@ const Sidebar = () => {
                     </TabType>
                     <TabContent>
                         <UsersList>
-                            {users.map(user => (
+                            {users && users.map(user => (
                                 <UserItem onClickCapture={() => setActiveTab(user.id)} active={activeTab === user.id} key={user.id} onClick={() => dispatch(setActiveChat(user))}>
                                     <Avatar />
                                     {user.name}
