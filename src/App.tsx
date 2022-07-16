@@ -1,25 +1,30 @@
-import React from 'react';
-import Main from './components/Main';
-import Sidebar from './components/Sidebar';
-import Chat from './components/Chat';
-import Footer from './components/Footer';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
+import { AuthContext, ContextType } from "./context/AuthContext";
+import { BrowserRouter } from 'react-router-dom';
+import { AppRouter } from './app/AppRouter';
 
-const Wrapper = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 
 export const App = () => {
+
+  const [isAuth, setIsAuth] = useState(false);
+
+  const context: ContextType = {
+    isAuth,
+    setIsAuth
+  }
+
+  useEffect(() => {
+    if (localStorage.getItem('access')) {
+      setIsAuth(true)
+    }
+  }, [])
+
   return (
-    <Wrapper>
-      <Main>
-        <Sidebar />
-        <Chat />
-      </Main>
-      <Footer />
-    </Wrapper>
+    <AuthContext.Provider value={context}>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
+    </AuthContext.Provider>
   );
 }
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { fetchComments, fetchUsers, setActiveChat } from '../app/usersSlice';
 import { IoSearchOutline, IoCloseOutline } from 'react-icons/io5';
 
@@ -46,7 +46,7 @@ const TabContent = styled.div`
     height: 550px;
     position: absolute;
     top: 120px;
-    overflow: scroll;
+    overflow: auto;
 
 `;
 
@@ -72,7 +72,6 @@ const UsersList = styled.ul`
     font-size: 14px;
     font-weight: 400;
     color: #475466;
-    overflow: scroll;
 `;
 
 const UserItem = styled.li`
