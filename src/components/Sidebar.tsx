@@ -6,7 +6,7 @@ import { IoSearchOutline, IoCloseOutline } from 'react-icons/io5';
 
 const Wrapper = styled.aside`
     position: relative;
-    width: 25%;
+    width: 22%;
     background-color: #f2f2f2;
     border-right: 1px solid #DADEE0;
 `;
@@ -43,11 +43,15 @@ const TabType = styled.label`
 const TabContent = styled.div`
     display: none;
     width: 100%;
-    height: 75%;
+    height: 80%;
     position: absolute;
     top: 120px;
     overflow: auto;
 
+`;
+
+const SearchWrapper = styled.div`
+    position: relative;
 `;
 
 const Search = styled.input.attrs({
@@ -68,18 +72,34 @@ const Search = styled.input.attrs({
     }
 `;
 
+const Icon = styled.span`
+    position: absolute;
+    right: 35px;
+    color: #94a1b3;
+`;
+
+const SearchIcon = styled(Icon)`
+    top: 21px;
+`;
+
+const ClearIcon = styled(Icon)`
+    top: 19px;
+    cursor: pointer;
+`;
+
 const UsersList = styled.ul`
     font-size: 14px;
     font-weight: 400;
     color: #475466;
 `;
 
-const UserItem = styled.li`
+const UserItem = styled.li<{ active: boolean }>`
     display: flex;
     align-items: center;
     padding: 15px 20px;
+    background: ${props => props.active ? 'rgb(206, 237, 245)' : ''};
     :hover {
-        background: #ceedf5;
+        background: rgba(206, 237, 245, 0.6);
     }
 `;
 
@@ -100,7 +120,10 @@ const Sidebar = () => {
     useEffect(() => {
         dispatch(fetchUsers())
         dispatch(fetchComments())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    const [activeTab, setActiveTab] = useState(0)
 
     return (
         <Wrapper>
@@ -113,7 +136,7 @@ const Sidebar = () => {
                     <TabContent>
                         <UsersList>
                             {comments.map(comment => (
-                                <UserItem key={comment.id} onClick={() => { dispatch(setActiveChat(comment)) }}>
+                                <UserItem onClickCapture={() => setActiveTab(comment.id)} active={activeTab === comment.id} key={comment.id} onClick={() => { dispatch(setActiveChat(comment)) }}>
                                     <Avatar />
                                     {comment.email}
                                 </UserItem>
@@ -129,7 +152,7 @@ const Sidebar = () => {
                     <TabContent>
                         <UsersList>
                             {users.map(user => (
-                                <UserItem key={user.id} onClick={() => dispatch(setActiveChat(user))}>
+                                <UserItem onClickCapture={() => setActiveTab(user.id)} active={activeTab === user.id} key={user.id} onClick={() => dispatch(setActiveChat(user))}>
                                     <Avatar />
                                     {user.name}
                                 </UserItem>
@@ -138,10 +161,17 @@ const Sidebar = () => {
                     </TabContent>
                 </>
             </SelectTab>
-            <div style={{ position: 'relative' }}>
+            <SearchWrapper>
                 <Search value={searchValue} onChange={evt => setSearchValue(evt.target.value)} />
-                {searchValue ? <IoCloseOutline onClick={() => setSearchValue('')} size="20px" style={{ position: 'absolute', top: '19px', right: '25px', color: '#94a1b3', cursor: "pointer" }} /> : <IoSearchOutline size="17px" style={{ position: 'absolute', top: '21px', right: '25px', color: '#94a1b3' }} />}
-            </div>
+                {searchValue ?
+                    <ClearIcon>
+                        <IoCloseOutline onClick={() => setSearchValue('')} size="20px" />
+                    </ClearIcon>
+                    :
+                    <SearchIcon>
+                        <IoSearchOutline size="17px" />
+                    </SearchIcon>}
+            </SearchWrapper>
         </Wrapper>
     );
 };

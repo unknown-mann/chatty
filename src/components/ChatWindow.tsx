@@ -1,12 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '../hooks';
-import { IoPersonAdd } from "react-icons/io5"
+import { IoPersonAdd, IoLogOutOutline } from "react-icons/io5"
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Wrapper = styled.section`
-    width: 75%;
+    width: 78%;
 `;
 
 const Bar = styled.div`
@@ -30,14 +31,6 @@ const Avatar = styled.div`
     background-color: aliceblue;
 `;
 
-const AddButton = styled.button.attrs({
-    type: 'button'
-})`
-    background: none;
-    border: none;
-    color: #94A1B3;
-`;
-
 const Window = styled.div`
     display: flex;
     flex-direction: column;
@@ -53,7 +46,7 @@ const TextWrapper = styled.div`
     border-top: 1px solid #DADEE0;
 `;
 
-const TextArea = styled.textarea.attrs({
+const TextArea = styled(motion.textarea).attrs({
     placeholder: "Type here..",
 })`
     width: 90%;
@@ -64,6 +57,7 @@ const TextArea = styled.textarea.attrs({
     background: transparent;
     border: 1px solid #CCD7E6;
     border-radius: 5px;
+    resize: none;
     :focus {
         outline: none !important;
         border-color: #1CA1C1;
@@ -72,6 +66,34 @@ const TextArea = styled.textarea.attrs({
 
 const ChatContent = styled.div`
     padding: 50px;
+`;
+
+const ButtonGroup = styled.div`
+    display: flex;
+    align-items: center;
+    color: #94A1B3;
+`;
+
+const Button = styled.button`
+    padding: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+    :hover {
+        opacity: 1;
+    };
+    :active {
+        opacity: 0.5;
+    }
+`;
+
+const AddButton = styled(Button)`
+    
+`;
+
+const LogoutButton = styled(Button)`
+    margin-left: 20px;
 `;
 
 const ChatWindow = () => {
@@ -95,17 +117,21 @@ const ChatWindow = () => {
                 <User>
                     {user.name}
                 </User>
-                <AddButton>
-                    <IoPersonAdd size="20px" />
-                </AddButton>
-                <button onClick={() => logout()}>Log out</button>
+                <ButtonGroup>
+                    <AddButton>
+                        <IoPersonAdd size="20px" />
+                    </AddButton>
+                    <LogoutButton onClick={() => logout()}>
+                        <IoLogOutOutline size="25px" />
+                    </LogoutButton>
+                </ButtonGroup>
             </Bar>
             <Window>
                 <ChatContent>
                     {user.body}
                 </ChatContent>
                 <TextWrapper>
-                    <TextArea />
+                    <TextArea whileFocus={{ height: 150 }} />
                 </TextWrapper>
             </Window>
         </Wrapper>
