@@ -5,7 +5,6 @@ const Container = styled.main`
     width: 100%;
     min-width: 1000px;
     height: 100%;
-    // min-height: 660px;
     display: flex;
     font-family: Roboto, sans-serif;
     border: 1px solid #DADEE0;

@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import Chat from "../components/Chat";
 import Login from "../components/Login";
+import Redirect from "../components/Redirect";
 
 export const AppRouter = () => {
 
@@ -19,6 +20,7 @@ export const AppRouter = () => {
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="*" element={<Login />} />
+                <Route path="/redirect" element={<Redirect />} />
             </Routes>
     )
 }

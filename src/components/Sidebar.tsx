@@ -12,7 +12,6 @@ const Wrapper = styled.aside`
 `;
 
 const SelectTab = styled.form`
-    // position: relative;
     display: flex;
     justify-content: space-between;
 `;

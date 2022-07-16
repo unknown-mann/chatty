@@ -82,7 +82,7 @@ const ChatWindow = () => {
 
     const logout = () => {
         setIsAuth(false);
-        localStorage.removeItem('access')
+        localStorage.removeItem('accessToken')
         navigate('/')
     }
 

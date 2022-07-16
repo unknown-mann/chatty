@@ -14,7 +14,7 @@ export const App = () => {
   }
 
   useEffect(() => {
-    if (localStorage.getItem('access')) {
+    if (localStorage.getItem('accessToken')) {
       setIsAuth(true)
     }
   }, [])
