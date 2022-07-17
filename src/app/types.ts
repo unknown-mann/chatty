@@ -14,3 +14,12 @@ export type CommentType = {
 export type StateType = {
     activeChat: UserType
 }
+
+export type UserMeType = {
+    id: string,
+    email: string,
+    firstname: string,
+    lastname: string,
+    friendIds: string[],
+    roles: string[]
+}

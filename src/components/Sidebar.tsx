@@ -116,20 +116,9 @@ const Sidebar = () => {
     const [searchValue, setSearchValue] = useState('')
 
     const dispatch = useAppDispatch()
-    // const { users, comments } = useAppSelector(state => state.users)
-
-    // useEffect(() => {
-    //     dispatch(fetchUsers())
-    //     dispatch(fetchComments())
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [])
 
     const {
-        data: users,
-        isLoading: isUsersLoading,
-        isSuccess: isUsersSuccess,
-        isError: isUsersError,
-        error: usersError
+        data: users
     } = useFetchUsersQuery()
 
     const {

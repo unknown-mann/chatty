@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IoLogoGoogle } from 'react-icons/io5';
 import { FcGoogle } from 'react-icons/fc'
 
 const Wrapper = styled.section`

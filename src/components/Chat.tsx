@@ -4,6 +4,9 @@ import Footer from './Footer';
 import Main from './Main';
 import Sidebar from './Sidebar';
 import ChatWindow from './ChatWindow';
+import { useFetchCurrentUserQuery } from '../api/apiSlice';
+import { Navigate } from 'react-router-dom';
+import { Loader } from './Loader';
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -13,15 +16,36 @@ const Wrapper = styled.div`
 `;
 
 const Chat = () => {
+
+    const {
+        data: userMe,
+        isLoading,
+        isSuccess,
+        isError
+    } = useFetchCurrentUserQuery()
+
+    let content
+
+    if (isLoading) {
+        content = <Loader />
+    } else if (isError) {
+        content = <Navigate to="/" />
+    } else if (isSuccess) {
+        content = 
+            <Wrapper>
+                <Main>
+                    <Sidebar />
+                    <ChatWindow userMe={userMe} />
+                </Main>
+                <Footer />
+            </Wrapper>
+    }
+
     return (
-        <Wrapper>
-            <Main>
-                <Sidebar />
-                <ChatWindow />
-            </Main>
-            <Footer />
-        </Wrapper>
-    );
+        <>
+            {content}
+        </>
+    )
 };
 
 export default Chat;

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '../hooks';
-import { IoPersonAdd, IoLogOutOutline } from "react-icons/io5"
+import { IoPerson, IoLogOutOutline } from "react-icons/io5"
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import ProfileModal from './ProfileModal';
+import { UserMeType } from '../app/types';
 
 const Wrapper = styled.section`
     width: 78%;
@@ -96,7 +98,11 @@ const LogoutButton = styled(Button)`
     margin-left: 20px;
 `;
 
-const ChatWindow = () => {
+type PropsType = {
+    userMe: UserMeType
+}
+
+const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
 
     const navigate = useNavigate()
 
@@ -108,18 +114,20 @@ const ChatWindow = () => {
         navigate('/')
     }
 
-    const user = useAppSelector(state => state.users.activeChat)
+    const [modalActive, setModalActive] = useState(false)
+
+    const currentUser = useAppSelector(state => state.users.activeChat)
 
     return (
         <Wrapper>
             <Bar>
                 <Avatar />
                 <User>
-                    {user.name}
+                    {currentUser.name}
                 </User>
                 <ButtonGroup>
-                    <AddButton>
-                        <IoPersonAdd size="20px" />
+                    <AddButton onClick={() => { setModalActive(true) }}>
+                        <IoPerson size="20px" />
                     </AddButton>
                     <LogoutButton onClick={() => logout()}>
                         <IoLogOutOutline size="25px" />
@@ -128,12 +136,13 @@ const ChatWindow = () => {
             </Bar>
             <Window>
                 <ChatContent>
-                    {user.body}
+                    {currentUser.body}
                 </ChatContent>
                 <TextWrapper>
                     <TextArea whileFocus={{ height: 150 }} />
                 </TextWrapper>
             </Window>
+            {modalActive && <ProfileModal userMe={userMe} modalActive={modalActive} setModalActive={setModalActive} />}
         </Wrapper>
     );
 };
