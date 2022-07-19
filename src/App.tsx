@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AuthContext, ContextType } from "./context/AuthContext";
 import { BrowserRouter } from 'react-router-dom';
 import { AppRouter } from './app/AppRouter';
+import { ACCESS_TOKEN } from './constants';
 
 
 export const App = () => {
@@ -14,7 +15,7 @@ export const App = () => {
   }
 
   useEffect(() => {
-    if (localStorage.getItem('accessToken')) {
+    if (localStorage.getItem(ACCESS_TOKEN)) {
       setIsAuth(true)
     }
   }, [])

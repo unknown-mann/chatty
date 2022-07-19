@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 import { motion } from 'framer-motion';
-import { UserMeType } from '../app/types';
+import { UserType } from '../app/types';
 
 const Modal = styled.div`
     z-index: 1;
@@ -30,7 +30,16 @@ const ModalContent = styled(motion.div)`
     overflow: auto;
 `;
 
+const Avatar = styled.img`
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+`;
+
 const ModalTitle = styled.h2`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
     padding-bottom: 10px;
     font-weight: 600;
@@ -46,7 +55,7 @@ const ModalField = styled.p`
 type PropsType = {
     modalActive: boolean,
     setModalActive: (arg: boolean) => void,
-    userMe: UserMeType
+    userMe: UserType
 }
 
 const ProfileModal: React.FC<PropsType> = ({ userMe, modalActive, setModalActive }) => {
@@ -54,7 +63,8 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, modalActive, setModalActive
     const {
         firstname,
         lastname,
-        email
+        email,
+        googleImgUrl
     } = userMe;
 
     return (
@@ -64,7 +74,8 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, modalActive, setModalActive
                 animate={{ x: 0 }}
                 onClick={(e) => e.stopPropagation()}>
                 <ModalTitle>
-                    My Profile
+                    My profile
+                    <Avatar src={googleImgUrl}/>
                 </ModalTitle>
                 <ModalField>
                     Name: {firstname}

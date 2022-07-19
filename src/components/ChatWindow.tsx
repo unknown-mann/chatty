@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '../hooks';
-import { IoPerson, IoLogOutOutline } from "react-icons/io5"
+import { IoPerson, IoLogOutOutline, IoPersonAdd } from "react-icons/io5"
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ProfileModal from './ProfileModal';
-import { UserMeType } from '../app/types';
+import { UserType } from '../app/types';
+import SocketClass from './SocketClass';
+import Socket from './SocketClass';
+import RequestsModal from './RequestsModal';
+import { useQuery } from '@apollo/client';
+import { FRIEND_REQUESTS } from '../apollo/users'
+import { ACCESS_TOKEN } from '../constants';
+import { IRequest, IRequests } from '../app/types';
+
 
 const Wrapper = styled.section`
     width: 78%;
@@ -27,10 +35,10 @@ const Bar = styled.div`
 const User = styled.div`
 `;
 
-const Avatar = styled.div`
-    padding: 20px;
+const Avatar = styled.img`
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
-    background-color: aliceblue;
 `;
 
 const Window = styled.div`
@@ -76,30 +84,39 @@ const ButtonGroup = styled.div`
     color: #94A1B3;
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ active?: boolean }>`
+    position: relative;
+    margin-left: 10px;
     padding: 5px;
     background: none;
     border: none;
     cursor: pointer;
-    opacity: 0.6;
+    opacity: ${props => props.active ? '1' : '0.6'};
     :hover {
         opacity: 1;
     };
     :active {
         opacity: 0.5;
-    }
+    };
 `;
 
-const AddButton = styled(Button)`
-    
-`;
-
-const LogoutButton = styled(Button)`
-    margin-left: 20px;
+const RequestsNum = styled.span<{ reqs: boolean }>`
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    width: 15px;
+    height: 15px;
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background: ${props => props.reqs ? 'green' : 'red'};
+    border-radius: 50%;
 `;
 
 type PropsType = {
-    userMe: UserMeType
+    userMe: UserType
 }
 
 const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
@@ -110,39 +127,64 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
 
     const logout = () => {
         setIsAuth(false);
-        localStorage.removeItem('accessToken')
+        localStorage.removeItem(ACCESS_TOKEN)
         navigate('/')
     }
 
-    const [modalActive, setModalActive] = useState(false)
+    const [profileModalActive, setProfileModalActive] = useState(false)
+    const [requestsModalActive, setRequestsModalActive] = useState(false)
 
     const currentUser = useAppSelector(state => state.users.activeChat)
+
+    const {
+        loading: reqLoading,
+        error: reqError,
+        data: reqData
+    } = useQuery<IRequests>(FRIEND_REQUESTS)
+
+    const reqLength = reqData?.friendRequests.length
 
     return (
         <Wrapper>
             <Bar>
-                <Avatar />
+                <Avatar src={currentUser.googleImgUrl} />
                 <User>
-                    {currentUser.name}
+                    {currentUser.firstname} {' '} {currentUser.lastname}
                 </User>
                 <ButtonGroup>
-                    <AddButton onClick={() => { setModalActive(true) }}>
+                    <Button onClick={() => setRequestsModalActive(true)} active={requestsModalActive}>
+                        <IoPersonAdd size="20px" />
+                        {!reqLoading &&
+                            <RequestsNum reqs={Boolean(reqLength)}>
+                                {reqLength}
+                            </RequestsNum>}
+                    </Button>
+                    <Button onClick={() => setProfileModalActive(true)} active={profileModalActive}>
                         <IoPerson size="20px" />
-                    </AddButton>
-                    <LogoutButton onClick={() => logout()}>
+                    </Button>
+                    <Button onClick={() => logout()}>
                         <IoLogOutOutline size="25px" />
-                    </LogoutButton>
+                    </Button>
                 </ButtonGroup>
             </Bar>
             <Window>
                 <ChatContent>
-                    {currentUser.body}
+                    {/* <SocketClass/> */}
+                    <Socket />
                 </ChatContent>
                 <TextWrapper>
                     <TextArea whileFocus={{ height: 150 }} />
                 </TextWrapper>
             </Window>
-            {modalActive && <ProfileModal userMe={userMe} modalActive={modalActive} setModalActive={setModalActive} />}
+            {profileModalActive && <ProfileModal userMe={userMe} modalActive={profileModalActive} setModalActive={setProfileModalActive} />}
+            {requestsModalActive && reqData &&
+                <RequestsModal
+                    modalActive={requestsModalActive}
+                    setModalActive={setRequestsModalActive}
+                    reqData={reqData}
+                    reqLoading={reqLoading}
+                    reqError={reqError}
+                />}
         </Wrapper>
     );
 };

@@ -1,25 +1,39 @@
-export type UserType = {
-    id: number,
-    name: string
-    body: string
-}
-
-export type CommentType = {
-    id: number,
-    name: string,
-    body: string
-    email: string
-}
-
 export type StateType = {
     activeChat: UserType
 }
 
-export type UserMeType = {
+export type UserType = {
     id: string,
     email: string,
     firstname: string,
     lastname: string,
+    googleImgUrl: string,
     friendIds: string[],
     roles: string[]
+}
+
+export interface IRequest {
+    id: string
+    email: string
+    firstname: string
+    lastname: string
+    googleImgUrl: string
+    friendIds: string[]
+}
+
+export interface IRequests {
+    friendRequests: IRequest[]
+}
+
+export interface IFriend {
+    id: string
+    email: string
+    firstname: string
+    lastname: string
+    googleImgUrl: string
+    friendIds: string[]
+}
+
+export interface IFriends {
+    myFriends: IFriend[]
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { ACCESS_TOKEN } from '../constants';
 
 const Redirect = () => {
 
@@ -17,7 +18,7 @@ const Redirect = () => {
     const { setIsAuth } = useAuth();
 
     if (token) {
-        localStorage.setItem('accessToken', token);
+        localStorage.setItem(ACCESS_TOKEN, token);
         setIsAuth(true)
         return <Navigate to="/chat" />
     } else {

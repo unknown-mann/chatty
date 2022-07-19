@@ -3,9 +3,13 @@ import { StateType } from "./types";
 
 const initialState: StateType = {
     activeChat: {
-        id: 0,
-        name: 'Name Surname',
-        body: ''
+        id: '',
+        email: '',
+        firstname: '',
+        lastname: '',
+        googleImgUrl: 'https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg',
+        friendIds: [],
+        roles: []
     }
 }
 
