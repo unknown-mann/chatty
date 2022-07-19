@@ -55,7 +55,9 @@ const ModalField = styled.p`
 type PropsType = {
     modalActive: boolean,
     setModalActive: (arg: boolean) => void,
-    userMe: UserType
+    userMe: {
+        me: UserType
+    }
 }
 
 const ProfileModal: React.FC<PropsType> = ({ userMe, modalActive, setModalActive }) => {
@@ -65,7 +67,7 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, modalActive, setModalActive
         lastname,
         email,
         googleImgUrl
-    } = userMe;
+    } = userMe.me;
 
     return (
         <Modal onClick={() => setModalActive(false)}>
@@ -75,7 +77,7 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, modalActive, setModalActive
                 onClick={(e) => e.stopPropagation()}>
                 <ModalTitle>
                     My profile
-                    <Avatar src={googleImgUrl}/>
+                    <Avatar src={googleImgUrl} />
                 </ModalTitle>
                 <ModalField>
                     Name: {firstname}

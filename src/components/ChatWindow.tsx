@@ -116,7 +116,9 @@ const RequestsNum = styled.span<{ reqs: boolean }>`
 `;
 
 type PropsType = {
-    userMe: UserType
+    userMe: {
+        me: UserType
+    }
 }
 
 const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
