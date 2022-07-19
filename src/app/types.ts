@@ -37,3 +37,16 @@ export interface IFriend {
 export interface IFriends {
     myFriends: IFriend[]
 }
+
+export interface IMessage {
+    id: string
+    senderId: string
+    roomId: string
+    text: string
+}
+
+export interface IRoom {
+    id: string
+    userIds: string[]
+    isMultiChat: boolean
+}

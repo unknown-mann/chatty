@@ -50,3 +50,24 @@ export const MY_FRIENDS = gql`
         }
     }
 `;
+
+export const MESSAGE_BY_USER = gql`
+    query {
+        messagesByUserId(userId: String, pageNum: Int, pageSize: Int) {
+            id
+            senderId
+            roomId
+            text
+        }
+    }
+`;
+
+export const ROOM = gql`
+    query {
+        roomByUserId(userId: String) {
+            id
+            userIds
+            isMultiChat
+        }
+    }
+`;

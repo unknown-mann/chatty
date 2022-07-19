@@ -11,9 +11,10 @@ import SocketClass from './SocketClass';
 import Socket from './SocketClass';
 import RequestsModal from './RequestsModal';
 import { useQuery } from '@apollo/client';
-import { FRIEND_REQUESTS } from '../apollo/users'
+import { FRIEND_REQUESTS, MESSAGE_BY_USER } from '../apollo/users'
 import { ACCESS_TOKEN } from '../constants';
 import { IRequest, IRequests } from '../app/types';
+import { IMessage } from '../app/types';
 
 
 const Wrapper = styled.section`
@@ -138,6 +139,14 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
 
     const currentUser = useAppSelector(state => state.users.activeChat)
 
+    const userId = currentUser.id
+
+    const {data: messages, loading, error} = useQuery<IMessage[]>(MESSAGE_BY_USER, {
+        variables: {
+            userId: currentUser.id
+        }
+    })
+
     const {
         loading: reqLoading,
         error: reqError,
@@ -173,6 +182,13 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
                 <ChatContent>
                     {/* <SocketClass/> */}
                     <Socket />
+                    <div>
+                        {messages && messages.map(message => (
+                            <li>
+                                {message.text}
+                            </li>
+                        ))}
+                    </div>
                 </ChatContent>
                 <TextWrapper>
                     <TextArea whileFocus={{ height: 150 }} />
