@@ -28,6 +28,7 @@ const ModalContent = styled(motion.div)`
     border-radius: 10px;
     box-shadow: 0 0 10px 3px rgba(221, 221, 221, 1);
     overflow: auto;
+    box-sizing: border-box;
 `;
 
 const Avatar = styled.img`

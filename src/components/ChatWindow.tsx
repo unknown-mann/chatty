@@ -180,8 +180,6 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
         }
     })
 
-    console.log(messages)
-
     let messagesContent
 
     if (msgLoading) {
@@ -224,7 +222,6 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
         sendMessage()
         setText('')
     }
-    console.log(text)
 
     return (
         <Wrapper>

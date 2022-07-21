@@ -21,6 +21,8 @@ const Chat = () => {
 
     const { data: userMe, loading: isLoading, error: isError } = useQuery(USER_ME)
 
+    console.log(userMe)
+
     let content
 
     if (isLoading) {
