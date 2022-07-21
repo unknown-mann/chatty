@@ -16,7 +16,6 @@ const Modal = styled.div`
 `;
 
 const ModalContent = styled(motion.div)`
-    width: 250px;
     margin-top: 65px;
     margin-right: 20px;
     font-family: Roboto, sans-serif;

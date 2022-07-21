@@ -101,18 +101,18 @@ const RequestsModal: React.FC<PropsType> = ({ reqData, reqLoading, reqError, mod
                     Friend requests
                 </ModalTitle>
                 <ReqList>
-                    {requests.length ? requests.map(data => (
+                    {requests.length ? requests.map(user => (
                         <ReqItemWrapper>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Avatar src={data.googleImgUrl} />
-                                <ReqItem key={data.id}>
-                                    {data.firstname} {" "} {data.lastname}
+                                <Avatar src={user.googleImgUrl} />
+                                <ReqItem key={user.id}>
+                                    {user.firstname} {" "} {user.lastname}
                                 </ReqItem>
                             </div>
                             <Button
                                 onClick={() => addNewFriend({
                                     variables: {
-                                        userId: data.id
+                                        userId: user.id
                                     }
                                 })}
                                 whileHover={{ scale: 1.5 }}
