@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { motion } from 'framer-motion';
 import { IoAdd } from 'react-icons/io5';
 import { useMutation } from '@apollo/client';
-import { ADD_NEW_FRIEND } from '../apollo/users';
+import { ADD_NEW_FRIEND } from '../apollo/requests';
 import { IRequests } from '../app/types';
 
 const Modal = styled.div`
@@ -87,32 +87,9 @@ type PropsType = {
 
 const RequestsModal: React.FC<PropsType> = ({ reqData, reqLoading, reqError, modalActive, setModalActive }) => {
 
-    const [addNewFriend, { data, loading, error }] = useMutation(ADD_NEW_FRIEND)
+    const [addNewFriend] = useMutation(ADD_NEW_FRIEND)
 
     const { friendRequests: requests = [] } = reqData
-
-    console.log(requests)
-
-    // const datas = [
-    //     {
-    //         id: '1',
-    //         firstname: 'Duman',
-    //         lastname: 'Abdrakhmanov',
-    //         googleImgUrl: 'https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg',
-    //     },
-    //     {
-    //         id: '2',
-    //         firstname: 'David',
-    //         lastname: 'Dolgov',
-    //         googleImgUrl: 'https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg',
-    //     },
-    //     {
-    //         id: '3',
-    //         firstname: 'Erzhan',
-    //         lastname: 'Ainabekov',
-    //         googleImgUrl: 'https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg',
-    //     }
-    // ]
 
     return (
         <Modal onClick={() => setModalActive(false)}>
@@ -143,7 +120,7 @@ const RequestsModal: React.FC<PropsType> = ({ reqData, reqLoading, reqError, mod
                                 <IoAdd size="20px" />
                             </Button>
                         </ReqItemWrapper>
-                    )) : 'There isn`t friend requests'}
+                    )) : 'There are no new requests'}
                 </ReqList>
             </ModalContent>
         </Modal>

@@ -7,14 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ProfileModal from './ProfileModal';
 import { UserType } from '../app/types';
-import SocketClass from './SocketClass';
-import Socket from './SocketClass';
 import RequestsModal from './RequestsModal';
-import { useQuery } from '@apollo/client';
-import { FRIEND_REQUESTS, MESSAGE_BY_USER } from '../apollo/users'
+import { useMutation, useQuery } from '@apollo/client';
+import { FRIEND_REQUESTS, MESSAGE_BY_USER, SEND_MESSAGE } from '../apollo/requests'
 import { ACCESS_TOKEN } from '../constants';
-import { IRequest, IRequests } from '../app/types';
-import { IMessage } from '../app/types';
+import { IRequests } from '../app/types';
+import { IMessagesByUserId } from '../app/types';
+import { Spinner } from './Spinner';
 
 
 const Wrapper = styled.section`
@@ -53,6 +52,7 @@ const Window = styled.div`
 const TextWrapper = styled.div`
     width: 100%;
     display: flex;
+    flex-direction: column;
     padding: 20px 0;
     border-top: 1px solid #DADEE0;
 `;
@@ -77,6 +77,14 @@ const TextArea = styled(motion.textarea).attrs({
 
 const ChatContent = styled.div`
     padding: 50px;
+`;
+
+const MessagesList = styled.ul`
+    list-style-type: none;
+`;
+
+const MessageItem = styled.li`
+
 `;
 
 const ButtonGroup = styled.div`
@@ -116,6 +124,31 @@ const RequestsNum = styled.span<{ reqs: boolean }>`
     border-radius: 50%;
 `;
 
+const SendButton = styled.button`
+    width: 70px;
+    align-self: flex-end;
+    margin-right: 5%;
+    margin-top: 15px;
+    font-size: 16px;
+    color: white;
+    background-color: #1ca1c1;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    :hover {
+        background-color: #0b829e;
+    }
+    :active {
+        background-color: #0b768f;
+    }
+    :disabled {
+        color: #94A1B3;
+        background: #f4f5f9;
+        cursor: not-allowed;
+    }
+`;
+
 type PropsType = {
     userMe: {
         me: UserType
@@ -134,26 +167,64 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
         navigate('/')
     }
 
+    const currentUser = useAppSelector(state => state.users.activeChat)
+
     const [profileModalActive, setProfileModalActive] = useState(false)
     const [requestsModalActive, setRequestsModalActive] = useState(false)
 
-    const currentUser = useAppSelector(state => state.users.activeChat)
-
-    const userId = currentUser.id
-
-    const {data: messages, loading, error} = useQuery<IMessage[]>(MESSAGE_BY_USER, {
+    const { data: messages, loading: msgLoading, error: msgError } = useQuery<IMessagesByUserId>(MESSAGE_BY_USER, {
         variables: {
-            userId: currentUser.id
+            userId: currentUser.id,
+            pageNum: 0,
+            pageSize: 10
         }
     })
 
-    const {
-        loading: reqLoading,
-        error: reqError,
-        data: reqData
-    } = useQuery<IRequests>(FRIEND_REQUESTS)
+    console.log(messages)
+
+    let messagesContent
+
+    if (msgLoading) {
+        messagesContent = <Spinner text='Loading'/>
+    } else if (msgError) {
+        messagesContent = <div>{msgError.message}</div>
+    } else if (messages) {
+        messagesContent = 
+        messages.messagesByUserId.length ?
+        <MessagesList>
+        {messages.messagesByUserId.map(msg => (
+            <MessageItem key={msg.id}>
+                {msg.text}
+            </MessageItem>
+        ))}
+        </MessagesList>
+        : <div>There isn't messages yet</div>
+    }
+
+    const { data: reqData, loading: reqLoading, error: reqError } = useQuery<IRequests>(FRIEND_REQUESTS)
 
     const reqLength = reqData?.friendRequests.length
+
+    const [text, setText] = useState('');
+
+    const [sendMessage] = useMutation(SEND_MESSAGE, {
+        variables: {
+            message: {
+                text,
+                fileIds: ''
+            },
+            userId: currentUser.id
+        },
+        onCompleted: (data) => {
+            console.log(data)
+        }
+    })
+
+    const handleSendMessage = () => {
+        sendMessage()
+        setText('')
+    }
+    console.log(text)
 
     return (
         <Wrapper>
@@ -180,29 +251,17 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
             </Bar>
             <Window>
                 <ChatContent>
-                    {/* <SocketClass/> */}
-                    <Socket />
-                    <div>
-                        {messages && messages.map(message => (
-                            <li>
-                                {message.text}
-                            </li>
-                        ))}
-                    </div>
+                    {currentUser.id && messagesContent}
                 </ChatContent>
                 <TextWrapper>
-                    <TextArea whileFocus={{ height: 150 }} />
+                    <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
+                    <SendButton disabled={!text} onClick={(handleSendMessage)}>Send</SendButton>
                 </TextWrapper>
             </Window>
-            {profileModalActive && <ProfileModal userMe={userMe} modalActive={profileModalActive} setModalActive={setProfileModalActive} />}
+            {profileModalActive &&
+                <ProfileModal userMe={userMe} modalActive={profileModalActive} setModalActive={setProfileModalActive} />}
             {requestsModalActive && reqData &&
-                <RequestsModal
-                    modalActive={requestsModalActive}
-                    setModalActive={setRequestsModalActive}
-                    reqData={reqData}
-                    reqLoading={reqLoading}
-                    reqError={reqError}
-                />}
+                <RequestsModal modalActive={requestsModalActive} setModalActive={setRequestsModalActive} reqData={reqData} reqLoading={reqLoading} reqError={reqError} />}
         </Wrapper>
     );
 };

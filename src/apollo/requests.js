@@ -52,8 +52,8 @@ export const MY_FRIENDS = gql`
 `;
 
 export const MESSAGE_BY_USER = gql`
-    query {
-        messagesByUserId(userId: String, pageNum: Int, pageSize: Int) {
+    query MessagesByUserId($userId: String, $pageNum: Int, $pageSize: Int) {
+        messagesByUserId(userId: $userId, pageNum: $pageNum, pageSize: $pageSize) {
             id
             senderId
             roomId
@@ -63,11 +63,23 @@ export const MESSAGE_BY_USER = gql`
 `;
 
 export const ROOM = gql`
-    query {
-        roomByUserId(userId: String) {
+    query RoomByUserId($userId: String) {
+        roomByUserId(userId: $userId) {
             id
             userIds
             isMultiChat
+        }
+    }
+`;
+
+export const SEND_MESSAGE = gql`
+    mutation AddMessageToUser($message: MetaMessage, $userId: String ) {
+        addMessageToUser(message: $message, userId: $userId) {
+            id
+            senderId
+            roomId
+            text
+            fileIds
         }
     }
 `;

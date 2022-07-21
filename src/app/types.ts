@@ -38,6 +38,12 @@ export interface IFriends {
     myFriends: IFriend[]
 }
 
+export interface IRoom {
+    id: string
+    userIds: string[]
+    isMultiChat: boolean
+}
+
 export interface IMessage {
     id: string
     senderId: string
@@ -45,8 +51,6 @@ export interface IMessage {
     text: string
 }
 
-export interface IRoom {
-    id: string
-    userIds: string[]
-    isMultiChat: boolean
+export interface IMessagesByUserId {
+    messagesByUserId: IMessage[];
 }

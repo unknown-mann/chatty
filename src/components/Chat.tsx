@@ -7,7 +7,8 @@ import ChatWindow from './ChatWindow';
 import { Navigate } from 'react-router-dom';
 import { Loader } from './Loader';
 import { useQuery } from "@apollo/client";
-import { USER_ME } from "../apollo/users";
+import { USER_ME } from "../apollo/requests";
+import Socket from './Socket';
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -18,15 +19,7 @@ const Wrapper = styled.div`
 
 const Chat = () => {
 
-    const {
-        data: userMe,
-        loading: isLoading,
-        error: isError
-    } = useQuery(USER_ME)
-
-    if (userMe) {
-        console.log(userMe.me.email)
-    }
+    const { data: userMe, loading: isLoading, error: isError } = useQuery(USER_ME)
 
     let content
 
@@ -40,6 +33,7 @@ const Chat = () => {
                 <Main>
                     <Sidebar />
                     <ChatWindow userMe={userMe} />
+                    <Socket />
                 </Main>
                 <Footer />
             </Wrapper>

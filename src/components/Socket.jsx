@@ -1,39 +1,31 @@
-import React, { useRef } from "react";
 import SockJsClient from "react-stomp";
 import { ACCESS_TOKEN } from "../constants";
 import { useQuery } from "@apollo/client";
-import { USER_ME, ROOM } from "../apollo/users";
+import { USER_ME, ROOM } from "../apollo/requests";
 import { useAppSelector } from "../hooks";
-import { IRoom } from "../app/types";
 
 
 const Socket = () => {
 
+  const currentUser = useAppSelector(state => state.users.activeChat)
+
   const { data: userMe } = useQuery(USER_ME);
 
-  const currentUser = useAppSelector(state => state.users.activeChat)
-  
+  const myEmail = userMe?.me?.email
 
-  const {data: room} = useQuery<IRoom>(ROOM, {
+  const { data: room } = useQuery(ROOM, {
     variables: {
       userId: currentUser.id
     }
   })
 
-  const myEmail = userMe?.me?.email
-
-
-  let clientRef = useRef();
-
-  const sendMessage = () => {
-    clientRef.sendMessage(`/app/message/${room.id}`, JSON.stringify({ name: "Druid" }));
-  };
+  let clientRef
 
   return (
     <>
-      <SockJsClient
+      {currentUser.id && room && <SockJsClient
         url="https://chatty-back.herokuapp.com/ws"
-        topics={[`/user/${myEmail}/msg/${room.id}`]}
+        topics={[`/user/${myEmail}/msg/${room.roomByUserId.id}`]}
         headers={{
           Authorization: "Bearer " + localStorage.getItem(ACCESS_TOKEN),
         }}
@@ -43,8 +35,7 @@ const Socket = () => {
         ref={(client) => {
           clientRef = client;
         }}
-      />
-      <button onClick={() => sendMessage()}>Send</button>
+      />}
     </>
   );
 };

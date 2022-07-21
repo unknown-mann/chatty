@@ -4,7 +4,7 @@ import { useAppDispatch } from "../hooks";
 import { setActiveChat } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
 import { useQuery } from "@apollo/client";
-import { MY_FRIENDS } from "../apollo/users";
+import { MY_FRIENDS } from "../apollo/requests";
 import { IFriends } from "../app/types";
 
 const Wrapper = styled.aside`
@@ -111,7 +111,7 @@ const Avatar = styled.img`
   border-radius: 50%;
 `;
 
-const Sidebar = () => {
+const Sidebar = React.memo(() => {
 
   const [searchValue, setSearchValue] = useState("");
 
@@ -138,7 +138,7 @@ const Sidebar = () => {
           <TabType htmlFor="users">Users</TabType>
           <TabContent>
             <UsersList>
-              {!loading && myFriends && 
+              {!loading && myFriends &&
                 myFriends.map((friend) => (
                   <UserItem
                     onClickCapture={() => setActiveTab(friend.id)}
@@ -171,6 +171,6 @@ const Sidebar = () => {
       </SearchWrapper>
     </Wrapper>
   );
-};
+});
 
 export default Sidebar;
