@@ -55,14 +55,14 @@ const Login = () => {
                 <Title>
                     Welcome to Chatty
                 </Title>
-                <Link href='https://chatty-back.herokuapp.com/oauth2/authorize/google?redirect_uri=http://localhost:3000/redirect'>
-                    <FcGoogle size="25px" />
-                    <span>Login with Google</span>
-                </Link>
-                {/* <Link href='https://chatty-back.herokuapp.com/oauth2/authorize/google?redirect_uri=https://chatty-beige.vercel.app/redirect'>
+                {/* <Link href='https://chatty-back.herokuapp.com/oauth2/authorize/google?redirect_uri=http://localhost:3000/redirect'>
                     <FcGoogle size="25px" />
                     <span>Login with Google</span>
                 </Link> */}
+                <Link href='https://chatty-back.herokuapp.com/oauth2/authorize/google?redirect_uri=https://chatty-beige.vercel.app/redirect'>
+                    <FcGoogle size="25px" />
+                    <span>Login with Google</span>
+                </Link>
             </Modal>
         </Wrapper>
     );
