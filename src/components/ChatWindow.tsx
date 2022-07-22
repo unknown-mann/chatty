@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { IoPerson, IoLogOutOutline, IoPersonAdd } from "react-icons/io5"
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -9,11 +9,12 @@ import ProfileModal from './ProfileModal';
 import { UserType } from '../app/types';
 import RequestsModal from './RequestsModal';
 import { useMutation, useQuery } from '@apollo/client';
-import { FRIEND_REQUESTS, MESSAGE_BY_USER, SEND_MESSAGE } from '../apollo/requests'
+import { FRIEND_REQUESTS, MESSAGE_BY_USER, ROOM, SEND_MESSAGE } from '../apollo/requests'
 import { ACCESS_TOKEN } from '../constants';
 import { IRequests } from '../app/types';
 import { IMessagesByUserId } from '../app/types';
 import { Spinner } from './Spinner';
+import { addMessage } from '../app/usersSlice';
 
 
 const Wrapper = styled.section`
@@ -157,6 +158,8 @@ type PropsType = {
 
 const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
 
+    const dispatch = useAppDispatch()
+
     const navigate = useNavigate()
 
     const { setIsAuth } = useAuth();
@@ -168,9 +171,16 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
     }
 
     const currentUser = useAppSelector(state => state.users.activeChat)
+    const newMessages = useAppSelector(state => state.users.messages)
 
     const [profileModalActive, setProfileModalActive] = useState(false)
     const [requestsModalActive, setRequestsModalActive] = useState(false)
+
+    const { data: room } = useQuery(ROOM, {
+        variables: {
+          userId: currentUser.id
+        }
+      })
 
     const { data: messages, loading: msgLoading, error: msgError } = useQuery<IMessagesByUserId>(MESSAGE_BY_USER, {
         variables: {
@@ -180,17 +190,22 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
         }
     })
 
+    console.log(messages)
+
+    let allMessages = messages?.messagesByUserId.concat(newMessages)
+    console.log('all msg ', allMessages)
+
     let messagesContent
 
     if (msgLoading) {
         messagesContent = <Spinner text='Loading'/>
     } else if (msgError) {
         messagesContent = <div>{msgError.message}</div>
-    } else if (messages) {
+    } else if (allMessages) {
         messagesContent = 
-        messages.messagesByUserId.length ?
+        allMessages.length ?
         <MessagesList>
-        {messages.messagesByUserId.map(msg => (
+        {allMessages?.map(msg => (
             <MessageItem key={msg.id}>
                 {msg.text}
             </MessageItem>
@@ -208,8 +223,8 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
     const [sendMessage] = useMutation(SEND_MESSAGE, {
         variables: {
             message: {
-                text,
-                fileIds: ''
+                text: text,
+                fileIds: []
             },
             userId: currentUser.id
         },
@@ -220,6 +235,12 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
 
     const handleSendMessage = () => {
         sendMessage()
+        dispatch(addMessage({
+            id: currentUser.id,
+            senderId: userMe.me.id,
+            roomId: room.roomByUserId.id,
+            text
+        }))
         setText('')
     }
 

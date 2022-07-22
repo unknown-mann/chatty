@@ -1,5 +1,6 @@
 export type StateType = {
-    activeChat: UserType
+    activeChat: UserType,
+    messages: IMessage[]
 }
 
 export type UserType = {
