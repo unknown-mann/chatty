@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import styled from "styled-components";
 import { useAppDispatch } from "../hooks";
 import { setActiveChat } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
-import { useQuery } from "@apollo/client";
-import { MY_FRIENDS } from "../apollo/requests";
-import { IFriends } from "../app/types";
+import { useQuery, useMutation } from "@apollo/client";
+import { ADD_NEW_FRIEND, MY_FRIENDS, SEARCH_USER } from "../apollo/requests";
+import { IFriends, IUsers } from "../types";
+import { IoAdd } from 'react-icons/io5';
 
 const Wrapper = styled.aside`
   position: relative;
@@ -48,20 +49,21 @@ const TabContent = styled.div`
   width: 100%;
   height: 80%;
   position: absolute;
-  top: 120px;
+  top: 60px;
   overflow: auto;
 `;
 
 const SearchWrapper = styled.div`
   position: relative;
+  padding: 15px;
+  padding-bottom: 0;
 `;
 
 const Search = styled.input.attrs({
   type: "text",
   placeholder: "Search",
 })`
-  width: 90%;
-  margin: 10px;
+  width: 100%;
   padding: 10px;
   background-color: #f2f2f2;
   border: 1px solid #dadee0;
@@ -75,20 +77,21 @@ const Search = styled.input.attrs({
 
 const Icon = styled.span`
   position: absolute;
-  right: 35px;
+  right: 30px;
   color: #94a1b3;
 `;
 
 const SearchIcon = styled(Icon)`
-  top: 21px;
+  top: 25px;
 `;
 
 const ClearIcon = styled(Icon)`
-  top: 19px;
+  top: 24px;
   cursor: pointer;
 `;
 
 const UsersList = styled.ul`
+  margin-top: 10px;
   font-size: 14px;
   font-weight: 400;
   color: #475466;
@@ -111,6 +114,18 @@ const Avatar = styled.img`
   border-radius: 50%;
 `;
 
+const Button = styled.button`
+    width: 20px;
+    height: 20px;
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    :active {
+        opacity: 0.6;
+    }
+`;
+
 const Sidebar = React.memo(() => {
 
   const [searchValue, setSearchValue] = useState("");
@@ -123,19 +138,71 @@ const Sidebar = React.memo(() => {
 
   const [activeTab, setActiveTab] = useState("");
 
+  const { data: users, loading: usersLoading, refetch } = useQuery<IUsers>(SEARCH_USER, {
+    variables: {
+      search: '',
+      pageNum: 0,
+      pageSize: 10
+    }
+  })
+
+  const handleSearch = (evt: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(evt.target.value)
+    refetch({
+      search: searchValue,
+      pageNum: 0,
+      pageSize: 10
+    })
+  }
+
+  const [addFriend] = useMutation(ADD_NEW_FRIEND)
+
   return (
     <Wrapper>
       <SelectTab>
         <>
-          <TabButton value="chats" id="chats" />
-          <TabType htmlFor="chats">Chats</TabType>
+          <TabButton value="users" id="users" />
+          <TabType htmlFor="users">Users</TabType>
           <TabContent>
-            <UsersList></UsersList>
+            <SearchWrapper>
+              <Search
+                value={searchValue}
+                onChange={handleSearch}
+              />
+              {searchValue ? (
+                <ClearIcon>
+                  <IoCloseOutline onClick={() => { setSearchValue(""); refetch({ search: '', pageNum: 0, pageSize: 10 }) }} size="20px" />
+                </ClearIcon>
+              ) : (
+                <SearchIcon>
+                  <IoSearchOutline size="17px" />
+                </SearchIcon>
+              )}
+            </SearchWrapper>
+            <UsersList>
+              {!usersLoading && users &&
+                users.usersBySearch.map(user => (
+                  <UserItem key={user.id}>
+                    <Avatar src={user.googleImgUrl} />
+                    {user.firstname} {user.lastname}
+                    <Button
+                      disabled
+                      onClick={() => addFriend({
+                        variables: {
+                          userId: user.id
+                        }})}
+                    >
+                      <IoAdd size="20px" />
+                    </Button>
+                  </UserItem>
+                ))
+              }
+            </UsersList>
           </TabContent>
         </>
         <>
-          <TabButton value="users" id="users" defaultChecked />
-          <TabType htmlFor="users">Users</TabType>
+          <TabButton defaultChecked value="chats" id="chats" />
+          <TabType htmlFor="chats">Chats</TabType>
           <TabContent>
             <UsersList>
               {!loading && myFriends &&
@@ -154,21 +221,6 @@ const Sidebar = React.memo(() => {
           </TabContent>
         </>
       </SelectTab>
-      <SearchWrapper>
-        <Search
-          value={searchValue}
-          onChange={(evt) => setSearchValue(evt.target.value)}
-        />
-        {searchValue ? (
-          <ClearIcon>
-            <IoCloseOutline onClick={() => setSearchValue("")} size="20px" />
-          </ClearIcon>
-        ) : (
-          <SearchIcon>
-            <IoSearchOutline size="17px" />
-          </SearchIcon>
-        )}
-      </SearchWrapper>
     </Wrapper>
   );
 });

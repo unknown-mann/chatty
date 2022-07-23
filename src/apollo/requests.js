@@ -55,9 +55,15 @@ export const MESSAGE_BY_USER = gql`
     query MessagesByUserId($userId: String, $pageNum: Int, $pageSize: Int) {
         messagesByUserId(userId: $userId, pageNum: $pageNum, pageSize: $pageSize) {
             id
-            senderId
             roomId
             text
+            fileIds
+            user {
+                id
+                email
+                firstname
+                lastname
+            }
         }
     }
 `;
@@ -76,10 +82,27 @@ export const SEND_MESSAGE = gql`
     mutation AddMessageToUser($message: MetaMessage, $userId: String ) {
         addMessageToUser(message: $message, userId: $userId) {
             id
-            senderId
-            roomId
             text
-            fileIds
+            user {
+                id
+                email
+                firstname
+                lastname
+            }
+        }
+    }
+`;
+
+export const SEARCH_USER = gql`
+    query UsersBySearch($search: String, $pageNum: Int, $pageSize: Int) {
+        usersBySearch(search: $search, pageNum: $pageNum, pageSize: $pageSize) {
+            id
+            email
+            firstname
+            lastname
+            googleImgUrl
+            roles
+            friendIds
         }
     }
 `;

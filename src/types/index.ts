@@ -1,6 +1,5 @@
 export type StateType = {
-    activeChat: UserType,
-    messages: IMessage[]
+    activeChat: UserType
 }
 
 export type UserType = {
@@ -47,11 +46,21 @@ export interface IRoom {
 
 export interface IMessage {
     id: string
-    senderId: string
     roomId: string
     text: string
+    fileIds: string[]
+    user: {
+        id: string
+        email: string
+        firstname: string
+        lastname: string
+    }
 }
 
 export interface IMessagesByUserId {
     messagesByUserId: IMessage[];
+}
+
+export interface IUsers {
+    usersBySearch: UserType[]
 }

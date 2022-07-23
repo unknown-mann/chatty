@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { IoAdd } from 'react-icons/io5';
 import { useMutation } from '@apollo/client';
 import { ADD_NEW_FRIEND } from '../apollo/requests';
-import { IRequests } from '../app/types';
+import { IRequests } from '../types';
 
 const Modal = styled.div`
     z-index: 1;
@@ -31,6 +31,7 @@ const ModalContent = styled(motion.div)`
     border-radius: 10px;
     box-shadow: 0 0 10px 3px rgba(221, 221, 221, 1);
     overflow: auto;
+    background-color: white;
 `;
 
 const ModalTitle = styled.h2`
@@ -87,7 +88,7 @@ type PropsType = {
 
 const RequestsModal: React.FC<PropsType> = ({ reqData, reqLoading, reqError, modalActive, setModalActive }) => {
 
-    const [addNewFriend] = useMutation(ADD_NEW_FRIEND)
+    const [addFriend] = useMutation(ADD_NEW_FRIEND)
 
     const { friendRequests: requests = [] } = reqData
 
@@ -110,7 +111,7 @@ const RequestsModal: React.FC<PropsType> = ({ reqData, reqLoading, reqError, mod
                                 </ReqItem>
                             </div>
                             <Button
-                                onClick={() => addNewFriend({
+                                onClick={() => addFriend({
                                     variables: {
                                         userId: user.id
                                     }

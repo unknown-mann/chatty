@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const Container = styled.main`
     width: 100%;
     min-width: 1000px;
-    height: 100%;
+    height: 90%;
     display: flex;
     font-family: Roboto, sans-serif;
     border: 1px solid #DADEE0;
