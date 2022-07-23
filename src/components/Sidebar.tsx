@@ -186,7 +186,6 @@ const Sidebar = React.memo(() => {
                     <Avatar src={user.googleImgUrl} />
                     {user.firstname} {user.lastname}
                     <Button
-                      disabled
                       onClick={() => addFriend({
                         variables: {
                           userId: user.id
