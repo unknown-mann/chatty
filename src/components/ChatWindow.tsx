@@ -202,7 +202,6 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
     }
 
     const currentUser = useAppSelector(state => state.users.activeChat)
-    console.log(currentUser)
 
     const [profileModalActive, setProfileModalActive] = useState(false)
     const [requestsModalActive, setRequestsModalActive] = useState(false)
@@ -278,7 +277,6 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
         dispatch(setMessages({
             id: currentUser.id,
             text,
-            roomId: '',
             fileIds: [],
             createdAt: new Date().toUTCString(),
             user: {

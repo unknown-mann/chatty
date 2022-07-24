@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { motion } from 'framer-motion';
 import { IoAdd } from 'react-icons/io5';
 import { useMutation } from '@apollo/client';
-import { ADD_NEW_FRIEND, FRIEND_REQUESTS } from '../apollo/requests';
+import { ADD_NEW_FRIEND, FRIEND_REQUESTS, MY_FRIENDS } from '../apollo/requests';
 import { IRequests } from '../types';
 
 const Modal = styled.div`
@@ -91,7 +91,9 @@ const RequestsModal: React.FC<PropsType> = ({ reqData, reqLoading, reqError, mod
     const [addFriend, {loading}] = useMutation(ADD_NEW_FRIEND, {
         refetchQueries: [
             {query: FRIEND_REQUESTS},
-            'FriendRequests'
+            {query: MY_FRIENDS},
+            'FriendRequests',
+            'MyFriends'
         ]
     })
 

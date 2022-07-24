@@ -123,7 +123,12 @@ const Sidebar = React.memo(() => {
 
   const dispatch = useAppDispatch();
 
-  const { data: friends, loading: friendsLoading, error: friendsError } = useQuery<IFriends>(MY_FRIENDS);
+  const { data: friends, loading: friendsLoading, error: friendsError } = useQuery<IFriends>(MY_FRIENDS, {
+    variables: {
+      pageNum: 0,
+      pageSize: 10
+    }
+  });
 
   const [activeChat, setActiveChat] = useState("");
 

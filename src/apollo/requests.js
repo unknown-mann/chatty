@@ -36,8 +36,8 @@ export const ADD_NEW_FRIEND = gql`
 `;
 
 export const MY_FRIENDS = gql`
-    query {
-        myFriends(pageNum: 0, pageSize: 10) {
+    query MyFriends($pageNum: Int, $pageSize: Int) {
+        myFriends(pageNum: $pageNum, pageSize: $pageSize) {
             id
             email
             firstname
