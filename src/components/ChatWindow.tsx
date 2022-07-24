@@ -186,10 +186,11 @@ const RequestsNum = styled.span<{ reqs: boolean }>`
 type PropsType = {
     userMe: {
         me: UserType
-    }
+    },
+    sendMessageBySocket: (arg: any) => void
 }
 
-const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
+const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
 
     const navigate = useNavigate()
 
@@ -273,6 +274,20 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
 
     const handleSendMessage = () => {
         sendMessage()
+        sendMessageBySocket({
+            id: currentUser.id,
+            text,
+            fileIds: [],
+            createdAt: new Date().toUTCString(),
+            user: {
+                id: userMe.me.id,
+                email: userMe.me.email,
+                firstname: userMe.me.firstname,
+                lastname: userMe.me.lastname,
+                googleImgUrl: userMe.me.googleImgUrl
+
+            }
+        })
         setText('')
         dispatch(setMessages({
             id: currentUser.id,

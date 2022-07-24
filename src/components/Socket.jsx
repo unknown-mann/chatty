@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "../hooks";
 import { setMessages } from "../app/usersSlice";
 
 
-const Socket = () => {
+const Socket = ({ clientRef }) => {
 
   const dispatch = useAppDispatch()
 
@@ -21,8 +21,6 @@ const Socket = () => {
       userId: currentUser.id
     }
   })
-
-  let clientRef
 
   return (
     <>

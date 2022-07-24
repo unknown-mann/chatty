@@ -7,8 +7,9 @@ import ChatWindow from './ChatWindow';
 import { Navigate } from 'react-router-dom';
 import { Loader } from './Loader';
 import { useQuery } from "@apollo/client";
-import { USER_ME } from "../apollo/requests";
+import { ROOM, USER_ME } from "../apollo/requests";
 import Socket from './Socket';
+import { useAppSelector } from '../hooks';
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -19,6 +20,20 @@ const Wrapper = styled.div`
 
 const Chat = () => {
 
+    const currentUser = useAppSelector(state => state.users.activeChat)
+
+    const { data: room } = useQuery(ROOM, {
+        variables: {
+            userId: currentUser.id
+        }
+    })
+
+    let clientRef
+
+    const sendMessageBySocket = (msg) => {
+        clientRef.sendMessage(`/app/message/${room.id}`, msg);
+    };
+
     const { data: userMe, loading: isLoading, error: isError } = useQuery(USER_ME)
 
     let content
@@ -28,12 +43,12 @@ const Chat = () => {
     } else if (isError) {
         content = <Navigate to="/" />
     } else if (userMe) {
-        content = 
+        content =
             <Wrapper>
                 <Main>
                     <Sidebar />
-                    <ChatWindow userMe={userMe} />
-                    <Socket />
+                    <ChatWindow sendMessageBySocket={sendMessageBySocket} userMe={userMe} />
+                    <Socket clientRef={clientRef} />
                 </Main>
                 <Footer />
             </Wrapper>
