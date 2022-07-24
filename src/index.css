@@ -63,7 +63,6 @@ textarea::placeholder {
 
 .loader:after {
   background: #fff;
-  ;
   width: 75%;
   height: 75%;
   border-radius: 50%;

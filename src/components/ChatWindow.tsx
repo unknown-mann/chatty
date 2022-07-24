@@ -243,7 +243,7 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
                                     <MessageSender>{msg.user.firstname} {msg.user.lastname}</MessageSender>
                                     <MessageContent>{msg.text}</MessageContent>
                                 </div>
-                                <TimeStamp>{new Date(msg.createdAt).getUTCDay()}</TimeStamp>
+                                <TimeStamp>{new Date(msg.createdAt).toLocaleString('en-GB')}</TimeStamp>
                             </MessageWrapper>
                         </MessageItem>
                     ))}

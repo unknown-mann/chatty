@@ -33,7 +33,7 @@ const Chat = () => {
     }
 
     const sendMessageBySocket = (msg) => {
-        clientRefWrapper.clientRef.sendMessage(`/app/message/${room.id}`, msg);
+        clientRefWrapper.clientRef.sendMessage(`/app/message/${room.roomByUserId.id}`, JSON.stringify(msg));
     };
 
     const { data: userMe, loading: isLoading, error: isError } = useQuery(USER_ME)

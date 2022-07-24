@@ -3,10 +3,11 @@ import styled from "styled-components";
 import { useAppDispatch } from "../hooks";
 import { setCurrentChat } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { ADD_NEW_FRIEND, MY_FRIENDS, SEARCH_USER } from "../apollo/requests";
 import { IFriends, IUsers } from "../types";
 import { IoAdd } from 'react-icons/io5';
+import { BeatLoader } from "react-spinners";
 
 const Wrapper = styled.aside`
   position: relative;
@@ -94,7 +95,7 @@ const UserItem = styled.li`
   }
 `;
 
-const FriendItem = styled(UserItem) <{ active?: boolean }>`
+const FriendItem = styled(UserItem)<{ active?: boolean }>`
   background: ${(props) => (props.active ? "rgb(206, 237, 245)" : "")};
 `;
 
@@ -117,6 +118,13 @@ const Button = styled.button`
     }
 `;
 
+const LoaderWrapper = styled.div`
+  height: 100%; 
+  display: flex; 
+  justify-content: center; 
+  margin-top: 100px;
+`;
+
 const Sidebar = React.memo(() => {
 
   const [searchValue, setSearchValue] = useState("");
@@ -132,7 +140,7 @@ const Sidebar = React.memo(() => {
 
   const [activeChat, setActiveChat] = useState("");
 
-  const { data: users, loading: usersLoading, error: usersError, refetch } = useQuery<IUsers>(SEARCH_USER, {
+  const [loadUsers, { data: users, loading: usersLoading, error: usersError, refetch }] = useLazyQuery<IUsers>(SEARCH_USER, {
     variables: {
       search: '',
       pageNum: 0,
@@ -158,7 +166,10 @@ const Sidebar = React.memo(() => {
   let friendsList
 
   if (friendsLoading) {
-    friendsList = <div>Loading</div>
+    friendsList = 
+      <LoaderWrapper>
+        <BeatLoader color="gray" />
+      </LoaderWrapper>
   } else if (friendsError) {
     friendsList = friendsError.message
   } else if (friends?.myFriends) {
@@ -180,7 +191,10 @@ const Sidebar = React.memo(() => {
   let usersList
 
   if (usersLoading) {
-    usersList = <div>Loading</div>
+    usersList = 
+      <LoaderWrapper>
+        <BeatLoader color="gray" />
+      </LoaderWrapper>
   } else if (usersError) {
     usersList = <div>{usersError.message}</div>
   } else if (users?.usersBySearch) {
@@ -215,7 +229,7 @@ const Sidebar = React.memo(() => {
     <Wrapper>
       <SelectTab>
         <>
-          <TabType active={activeTab === 1} onClick={() => toggleTab(1)}>Users</TabType>
+          <TabType active={activeTab === 1} onClick={() => { toggleTab(1); loadUsers() }}>Users</TabType>
           <TabContent active={activeTab === 1}>
             <SearchWrapper>
               <Search
@@ -232,7 +246,7 @@ const Sidebar = React.memo(() => {
                 </SearchIcon>
               )}
             </SearchWrapper>
-            {usersList}
+            {activeTab === 1 && usersList}
           </TabContent>
         </>
         <>
