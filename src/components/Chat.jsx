@@ -28,10 +28,12 @@ const Chat = () => {
         }
     })
 
-    let clientRef
+    let clientRefWrapper = {
+        clientRef: null
+    }
 
     const sendMessageBySocket = (msg) => {
-        clientRef.sendMessage(`/app/message/${room.id}`, msg);
+        clientRefWrapper.clientRef.sendMessage(`/app/message/${room.id}`, msg);
     };
 
     const { data: userMe, loading: isLoading, error: isError } = useQuery(USER_ME)
@@ -48,7 +50,7 @@ const Chat = () => {
                 <Main>
                     <Sidebar />
                     <ChatWindow sendMessageBySocket={sendMessageBySocket} userMe={userMe} />
-                    <Socket clientRef={clientRef} />
+                    <Socket clientRef={clientRefWrapper} />
                 </Main>
                 <Footer />
             </Wrapper>
