@@ -50,7 +50,7 @@ const Chat = () => {
                 <Main>
                     <Sidebar />
                     <ChatWindow sendMessageBySocket={sendMessageBySocket} userMe={userMe} />
-                    <Socket clientRef={clientRefWrapper} />
+                    <Socket clientRefWrapper={clientRefWrapper} />
                 </Main>
                 <Footer />
             </Wrapper>
