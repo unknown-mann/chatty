@@ -280,11 +280,11 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
             fileIds: [],
             createdAt: new Date().toUTCString(),
             user: {
-                id: currentUser.id,
-                email: currentUser.email,
-                firstname: currentUser.firstname,
-                lastname: currentUser.lastname,
-                googleImgUrl: currentUser.googleImgUrl
+                id: userMe.me.id,
+                email: userMe.me.email,
+                firstname: userMe.me.firstname,
+                lastname: userMe.me.lastname,
+                googleImgUrl: userMe.me.googleImgUrl
 
             }
         }))
