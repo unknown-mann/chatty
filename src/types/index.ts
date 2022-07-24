@@ -1,5 +1,6 @@
 export type StateType = {
     activeChat: UserType
+    messages: IMessage[]
 }
 
 export type UserType = {
@@ -8,8 +9,7 @@ export type UserType = {
     firstname: string,
     lastname: string,
     googleImgUrl: string,
-    friendIds: string[],
-    roles: string[]
+    friends?: UserType[]
 }
 
 export interface IRequest {
@@ -19,6 +19,7 @@ export interface IRequest {
     lastname: string
     googleImgUrl: string
     friendIds: string[]
+    roles: string[]
 }
 
 export interface IRequests {
@@ -31,7 +32,6 @@ export interface IFriend {
     firstname: string
     lastname: string
     googleImgUrl: string
-    friendIds: string[]
 }
 
 export interface IFriends {
@@ -49,11 +49,13 @@ export interface IMessage {
     roomId: string
     text: string
     fileIds: string[]
+    createdAt: string
     user: {
         id: string
         email: string
         firstname: string
         lastname: string
+        googleImgUrl: string
     }
 }
 

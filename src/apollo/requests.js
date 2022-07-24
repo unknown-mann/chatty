@@ -1,14 +1,13 @@
 import { gql } from "@apollo/client";
 
 export const FRIEND_REQUESTS = gql`
-   query {
-    friendRequests(pageNum: 0, pageSize: 10) {
+   query FriendRequests($pageNum: Int, $pageSize: Int) {
+    friendRequests(pageNum: $pageNum, pageSize: $pageSize) {
         id
         email
         firstname
         lastname
         googleImgUrl
-        friendIds
     }
 }
 `;
@@ -21,19 +20,17 @@ export const USER_ME = gql`
             firstname
             lastname
             googleImgUrl
-            friendIds
         }
     }
 `;
 
 export const ADD_NEW_FRIEND = gql`
-    mutation {
-        addFriend(userId: string) {
+    mutation AddFriend($userId: ID) {
+        addFriend(userId: $userId) {
             id
             email
             firstname
             lastname
-            friendIds
         }
     }
 `;
@@ -46,7 +43,6 @@ export const MY_FRIENDS = gql`
             firstname
             lastname
             googleImgUrl
-            friendIds
         }
     }
 `;
@@ -58,11 +54,13 @@ export const MESSAGE_BY_USER = gql`
             roomId
             text
             fileIds
+            createdAt
             user {
                 id
                 email
                 firstname
                 lastname
+                googleImgUrl
             }
         }
     }
@@ -101,8 +99,6 @@ export const SEARCH_USER = gql`
             firstname
             lastname
             googleImgUrl
-            roles
-            friendIds
         }
     }
 `;

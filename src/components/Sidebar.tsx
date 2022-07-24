@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
 import styled from "styled-components";
 import { useAppDispatch } from "../hooks";
-import { setActiveChat } from "../app/usersSlice";
+import { setCurrentChat } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
 import { useQuery, useMutation } from "@apollo/client";
 import { ADD_NEW_FRIEND, MY_FRIENDS, SEARCH_USER } from "../apollo/requests";
@@ -15,37 +15,25 @@ const Wrapper = styled.aside`
   border-right: 1px solid #dadee0;
 `;
 
-const SelectTab = styled.form`
+const SelectTab = styled.div`
   display: flex;
   justify-content: space-between;
 `;
 
-const TabButton = styled.input.attrs({
-  type: "radio",
-  name: "select",
-})`
-  display: none;
-  :checked + label {
-    color: #0b829e;
-    border-bottom: 2px solid #0b829e;
-  }
-  :checked + label + div {
-    display: block;
-  }
-`;
-
-const TabType = styled.label`
+const TabType = styled.span<{ active: boolean }>`
   display: inline-block;
   width: 50%;
   padding: 20px;
   font-size: 16px;
   font-weight: 500;
-  color: #1ca1c1;
+  color: ${props => props.active ? '#0b829e' : '#1ca1c1'};
+  border-bottom: ${props => props.active ? '2px solid #0b829e' : ''};
   text-align: center;
+  cursor: pointer;
 `;
 
-const TabContent = styled.div`
-  display: none;
+const TabContent = styled.div<{ active: boolean }>`
+  display: ${props => props.active ? 'block' : 'none'};
   width: 100%;
   height: 80%;
   position: absolute;
@@ -97,14 +85,17 @@ const UsersList = styled.ul`
   color: #475466;
 `;
 
-const UserItem = styled.li<{ active?: boolean }>`
+const UserItem = styled.li`
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  background: ${(props) => (props.active ? "rgb(206, 237, 245)" : "")};
   :hover {
     background: rgba(206, 237, 245, 0.6);
   }
+`;
+
+const FriendItem = styled(UserItem) <{ active?: boolean }>`
+  background: ${(props) => (props.active ? "rgb(206, 237, 245)" : "")};
 `;
 
 const Avatar = styled.img`
@@ -132,13 +123,11 @@ const Sidebar = React.memo(() => {
 
   const dispatch = useAppDispatch();
 
-  const { data, loading } = useQuery<IFriends>(MY_FRIENDS);
+  const { data: friends, loading: friendsLoading, error: friendsError } = useQuery<IFriends>(MY_FRIENDS);
 
-  const myFriends = data?.myFriends
+  const [activeChat, setActiveChat] = useState("");
 
-  const [activeTab, setActiveTab] = useState("");
-
-  const { data: users, loading: usersLoading, refetch } = useQuery<IUsers>(SEARCH_USER, {
+  const { data: users, loading: usersLoading, error: usersError, refetch } = useQuery<IUsers>(SEARCH_USER, {
     variables: {
       search: '',
       pageNum: 0,
@@ -155,15 +144,74 @@ const Sidebar = React.memo(() => {
     })
   }
 
-  const [addFriend] = useMutation(ADD_NEW_FRIEND)
+  const [addFriend] = useMutation(ADD_NEW_FRIEND, {
+    onCompleted: (data) => {
+      console.log(data)
+    }
+  })
+
+  let friendsList
+
+  if (friendsLoading) {
+    friendsList = <div>Loading</div>
+  } else if (friendsError) {
+    friendsList = friendsError.message
+  } else if (friends?.myFriends) {
+    friendsList =
+      <UsersList>
+        {friends.myFriends.map((friend) => (
+          <FriendItem
+            key={friend.id}
+            onClick={() => { setActiveChat(friend.id); dispatch(setCurrentChat(friend)) }}
+            active={activeChat === friend.id}
+          >
+            <Avatar src={friend.googleImgUrl} />
+            {friend.firstname} {friend.lastname}
+          </FriendItem>
+        ))}
+      </UsersList>
+  }
+
+  let usersList
+
+  if (usersLoading) {
+    usersList = <div>Loading</div>
+  } else if (usersError) {
+    usersList = <div>{usersError.message}</div>
+  } else if (users?.usersBySearch) {
+    usersList =
+      <UsersList>
+        {!usersLoading && users &&
+          users.usersBySearch.map(user => (
+            <UserItem key={user.googleImgUrl}>
+              <Avatar src={user.googleImgUrl} />
+              {user.firstname} {user.lastname}
+              <Button
+                onClick={() => addFriend({
+                  variables: {
+                    userId: user.id
+                  }
+                })}
+              >
+                <IoAdd size="20px" />
+              </Button>
+            </UserItem>
+          ))}
+      </UsersList>
+  }
+
+  const toggleTab = (index: number) => [
+    setActiveTab(index)
+  ]
+
+  const [activeTab, setActiveTab] = useState(2)
 
   return (
     <Wrapper>
       <SelectTab>
         <>
-          <TabButton value="users" id="users" />
-          <TabType htmlFor="users">Users</TabType>
-          <TabContent>
+          <TabType active={activeTab === 1} onClick={() => toggleTab(1)}>Users</TabType>
+          <TabContent active={activeTab === 1}>
             <SearchWrapper>
               <Search
                 value={searchValue}
@@ -179,44 +227,13 @@ const Sidebar = React.memo(() => {
                 </SearchIcon>
               )}
             </SearchWrapper>
-            <UsersList>
-              {!usersLoading && users &&
-                users.usersBySearch.map(user => (
-                  <UserItem key={user.id}>
-                    <Avatar src={user.googleImgUrl} />
-                    {user.firstname} {user.lastname}
-                    <Button
-                      onClick={() => addFriend({
-                        variables: {
-                          userId: user.id
-                        }})}
-                    >
-                      <IoAdd size="20px" />
-                    </Button>
-                  </UserItem>
-                ))
-              }
-            </UsersList>
+            {usersList}
           </TabContent>
         </>
         <>
-          <TabButton defaultChecked value="chats" id="chats" />
-          <TabType htmlFor="chats">Chats</TabType>
-          <TabContent>
-            <UsersList>
-              {!loading && myFriends &&
-                myFriends.map((friend) => (
-                  <UserItem
-                    onClickCapture={() => setActiveTab(friend.id)}
-                    active={activeTab === friend.id}
-                    key={friend.id}
-                    onClick={() => dispatch(setActiveChat(friend))}
-                  >
-                    <Avatar src={friend.googleImgUrl} />
-                    {friend.firstname} {friend.lastname}
-                  </UserItem>
-                ))}
-            </UsersList>
+          <TabType active={activeTab === 2} onClick={() => toggleTab(2)}>Chats</TabType>
+          <TabContent active={activeTab === 2}>
+            {friendsList}
           </TabContent>
         </>
       </SelectTab>

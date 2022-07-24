@@ -2,10 +2,13 @@ import SockJsClient from "react-stomp";
 import { ACCESS_TOKEN } from "../constants";
 import { useQuery } from "@apollo/client";
 import { USER_ME, ROOM } from "../apollo/requests";
-import { useAppSelector } from "../hooks";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { setMessages } from "../app/usersSlice";
 
 
 const Socket = () => {
+
+  const dispatch = useAppDispatch()
 
   const currentUser = useAppSelector(state => state.users.activeChat)
 
@@ -30,6 +33,7 @@ const Socket = () => {
           Authorization: "Bearer " + localStorage.getItem(ACCESS_TOKEN),
         }}
         onMessage={(msg) => {
+          dispatch(setMessages(msg))
         }}
         ref={(client) => {
           clientRef = client;

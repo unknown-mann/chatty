@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { IoPerson, IoLogOutOutline, IoPersonAdd } from "react-icons/io5"
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,7 @@ import { ACCESS_TOKEN } from '../constants';
 import { IRequests } from '../types';
 import { IMessagesByUserId } from '../types';
 import { Spinner } from './Spinner';
+import { setMessages } from '../app/usersSlice';
 
 
 const Wrapper = styled.section`
@@ -119,6 +120,12 @@ const MessageItem = styled.li`
     line-height: 20px;
 `;
 
+const MessageWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+`;
+
 const SenderAvatar = styled(Avatar)`
     margin-right: 20px;
     margin-top: 3px;
@@ -133,6 +140,10 @@ const MessageSender = styled.div`
 const MessageContent = styled.div`
     font-weight: 400;
     color: #475466;
+`;
+
+const TimeStamp = styled.div`
+
 `;
 
 const ButtonGroup = styled.div`
@@ -191,6 +202,7 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
     }
 
     const currentUser = useAppSelector(state => state.users.activeChat)
+    console.log(currentUser)
 
     const [profileModalActive, setProfileModalActive] = useState(false)
     const [requestsModalActive, setRequestsModalActive] = useState(false)
@@ -199,9 +211,19 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
         variables: {
             userId: currentUser.id,
             pageNum: 0,
-            pageSize: 10
+            pageSize: 20
         }
     })
+
+    const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        if (messages?.messagesByUserId) {
+            dispatch(setMessages(messages.messagesByUserId))
+        }
+    }, [messages])
+
+    const AllMessages = useAppSelector(state => state.users.messages)
 
     let messagesContent
 
@@ -209,24 +231,32 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
         messagesContent = <Spinner />
     } else if (msgError) {
         messagesContent = <div>{msgError.message}</div>
-    } else if (messages) {
+    } else if (messages && AllMessages) {
         messagesContent =
-            messages.messagesByUserId.length ?
+            AllMessages.length ?
                 <MessagesList>
-                    {messages.messagesByUserId.map(msg => (
+                    {AllMessages.map(msg => (
                         <MessageItem key={msg.id}>
-                            <SenderAvatar src={currentUser.googleImgUrl} />
-                            <div>
-                                <MessageSender>{msg.user.firstname} {msg.user.lastname}</MessageSender>
-                                <MessageContent>{msg.text}</MessageContent>
-                            </div>
+                            <SenderAvatar src={msg.user.googleImgUrl} />
+                            <MessageWrapper>
+                                <div>
+                                    <MessageSender>{msg.user.firstname} {msg.user.lastname}</MessageSender>
+                                    <MessageContent>{msg.text}</MessageContent>
+                                </div>
+                                <TimeStamp>{msg.createdAt}</TimeStamp>
+                            </MessageWrapper>
                         </MessageItem>
                     ))}
                 </MessagesList>
                 : <div>There isn't messages yet</div>
     }
 
-    const { data: reqData, loading: reqLoading, error: reqError } = useQuery<IRequests>(FRIEND_REQUESTS)
+    const { data: reqData, loading: reqLoading, error: reqError } = useQuery<IRequests>(FRIEND_REQUESTS, {
+        variables: {
+            pageNum: 0,
+            pageSize: 10
+        }
+    })
 
     const reqLength = reqData?.friendRequests.length
 
@@ -239,19 +269,27 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
                 fileIds: []
             },
             userId: currentUser.id
-        },
-        onCompleted: (data) => {
-            console.log(data)
-        },
-        refetchQueries: [
-            { query: MESSAGE_BY_USER },
-            'MessagesByUserId'
-        ]
+        }
     })
 
     const handleSendMessage = () => {
         sendMessage()
         setText('')
+        dispatch(setMessages({
+            id: currentUser.id,
+            text,
+            roomId: '',
+            fileIds: [],
+            createdAt: new Date().toUTCString(),
+            user: {
+                id: currentUser.id,
+                email: currentUser.email,
+                firstname: currentUser.firstname,
+                lastname: currentUser.lastname,
+                googleImgUrl: currentUser.googleImgUrl
+
+            }
+        }))
     }
 
     return (
@@ -287,9 +325,9 @@ const ChatWindow: React.FC<PropsType> = ({ userMe }) => {
                             <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
                             <SendButton disabled={!text} onClick={(handleSendMessage)}>Send</SendButton>
                         </TextWrapper>
-                    </> 
+                    </>
                     :
-                    <div style={{margin: '20% auto 0 auto', fontSize: '30px'}}>Welcome to Chatty</div>}
+                    <div style={{ margin: '20% auto 0 auto', fontSize: '30px' }}>Welcome to Chatty</div>}
             </Window>
             {profileModalActive &&
                 <ProfileModal userMe={userMe} modalActive={profileModalActive} setModalActive={setProfileModalActive} />}

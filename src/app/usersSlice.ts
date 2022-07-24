@@ -7,22 +7,24 @@ const initialState: StateType = {
         email: '',
         firstname: '',
         lastname: '',
-        googleImgUrl: 'https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg',
-        friendIds: [],
-        roles: []
-    }
+        googleImgUrl: 'https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg'
+    },
+    messages: []
 }
 
 const userSlice = createSlice({
     name: 'users',
     initialState,
     reducers: {
-        setActiveChat(state, action) {
+        setCurrentChat(state, action) {
             state.activeChat = action.payload
+        },
+        setMessages(state, action) {
+            state.messages = state.messages.concat(action.payload)
         }
     }
 })
 
 export default userSlice.reducer
 
-export const { setActiveChat } = userSlice.actions
+export const { setCurrentChat, setMessages } = userSlice.actions
