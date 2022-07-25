@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { motion } from 'framer-motion';
 import { IMessagesByRoomId, UserType } from '../types';
 import { useMutation, useQuery } from '@apollo/client';
-import { MESSAGE_BY_ROOM, SEND_MESSAGE, SEND_MESSAGE_TO_ROOM } from '../apollo/requests'
+import { MESSAGE_BY_ROOM, SEND_MESSAGE_TO_ROOM } from '../apollo/requests'
 import { setMessages, setRoom } from '../app/usersSlice';
 import { BeatLoader } from "react-spinners";
 
@@ -200,7 +200,7 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
                 text,
                 fileIds: []
             },
-            userId: currentChat.id
+            roomId: currentChat.id
         }
     })
 

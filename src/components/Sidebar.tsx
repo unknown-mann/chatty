@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../hooks";
 import { setCurrentChat, setRooms } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
-import { ADD_NEW_FRIEND, DELETE_FRIEND, MESSAGE_BY_USER, MY_ROOMS, ROOM, SEARCH_USER } from "../apollo/requests";
+import { ADD_NEW_FRIEND, DELETE_FRIEND, MY_ROOMS, ROOM, SEARCH_USER } from "../apollo/requests";
 import { IRooms, IUsers } from "../types";
 import { IoAdd, IoClose } from 'react-icons/io5';
 import { BeatLoader } from "react-spinners";
