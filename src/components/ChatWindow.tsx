@@ -1,40 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { IoPerson, IoLogOutOutline, IoPersonAdd } from "react-icons/io5"
-import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import ProfileModal from './ProfileModal';
 import { UserType } from '../types';
-import RequestsModal from './RequestsModal';
 import { useMutation, useQuery } from '@apollo/client';
-import { FRIEND_REQUESTS, MESSAGE_BY_USER, SEND_MESSAGE } from '../apollo/requests'
-import { ACCESS_TOKEN } from '../constants';
-import { IRequests } from '../types';
+import { MESSAGE_BY_USER, SEND_MESSAGE } from '../apollo/requests'
 import { IMessagesByUserId } from '../types';
-import { Spinner } from './Spinner';
 import { setMessages } from '../app/usersSlice';
+import { BeatLoader } from "react-spinners";
 
-
-const Wrapper = styled.section`
-    width: 78%;
-`;
-
-const Bar = styled.div`
-    height: 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 20px;
-    font-weight: 500;
-    color: #475466;
-    font-size: 15px;
-}
-`;
-
-const User = styled.div`
-`;
 
 const Avatar = styled.img`
     width: 35px;
@@ -47,7 +21,6 @@ const Window = styled.div<{ active: boolean }>`
     flex-direction: column;
     justify-content: space-between;
     height: 91%;
-    border-top: 1px solid #DADEE0;
 `;
 
 const ChatContent = styled.div`
@@ -145,43 +118,12 @@ const MessageContent = styled.div`
 const TimeStamp = styled.div`
 
 `;
-
-const ButtonGroup = styled.div`
-    display: flex;
-    align-items: center;
-    color: #94A1B3;
+const LoaderWrapper = styled.div`
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
 `;
 
-const Button = styled.button<{ active?: boolean }>`
-    position: relative;
-    margin-left: 10px;
-    padding: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    opacity: ${props => props.active ? '1' : '0.6'};
-    :hover {
-        opacity: 1;
-    };
-    :active {
-        opacity: 0.5;
-    };
-`;
-
-const RequestsNum = styled.span<{ reqs: boolean }>`
-    position: absolute;
-    top: 10px;
-    right: 30px;
-    width: 15px;
-    height: 15px;
-    font-size: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    background: ${props => props.reqs ? 'green' : 'red'};
-    border-radius: 50%;
-`;
 
 type PropsType = {
     userMe: {
@@ -192,20 +134,8 @@ type PropsType = {
 
 const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
 
-    const navigate = useNavigate()
-
-    const { setIsAuth } = useAuth();
-
-    const logout = () => {
-        setIsAuth(false);
-        localStorage.removeItem(ACCESS_TOKEN)
-        navigate('/')
-    }
-
     const currentUser = useAppSelector(state => state.users.activeChat)
 
-    const [profileModalActive, setProfileModalActive] = useState(false)
-    const [requestsModalActive, setRequestsModalActive] = useState(false)
 
     const { data: messages, loading: msgLoading, error: msgError } = useQuery<IMessagesByUserId>(MESSAGE_BY_USER, {
         variables: {
@@ -225,10 +155,21 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
 
     const AllMessages = useAppSelector(state => state.users.messages)
 
+    const messagesEndRef = useRef(null)
+    useEffect(() => {
+        //@ts-ignore
+        messagesEndRef.current?.scrollIntoView({
+            behavior: 'smooth'
+        })
+    }, [AllMessages])
+
     let messagesContent
 
     if (msgLoading) {
-        messagesContent = <Spinner />
+        messagesContent =
+            <LoaderWrapper>
+                <BeatLoader color='gray' />
+            </LoaderWrapper>
     } else if (msgError) {
         messagesContent = <div>{msgError.message}</div>
     } else if (messages && AllMessages) {
@@ -247,18 +188,10 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
                             </MessageWrapper>
                         </MessageItem>
                     ))}
+                    <span ref={messagesEndRef}></span>
                 </MessagesList>
                 : <div>There isn't messages yet</div>
     }
-
-    const { data: reqData, loading: reqLoading, error: reqError } = useQuery<IRequests>(FRIEND_REQUESTS, {
-        variables: {
-            pageNum: 0,
-            pageSize: 10
-        }
-    })
-
-    const reqLength = reqData?.friendRequests.length
 
     const [text, setText] = useState('');
 
@@ -290,7 +223,7 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
         })
         setText('')
         dispatch(setMessages({
-            id: currentUser.id,
+            id: Date.now().toString(),
             text,
             fileIds: [],
             createdAt: new Date().toUTCString(),
@@ -306,47 +239,15 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
     }
 
     return (
-        <Wrapper>
-            <Bar>
-                <Avatar src={currentUser.googleImgUrl} />
-                <User>
-                    {currentUser.firstname} {' '} {currentUser.lastname}
-                </User>
-                <ButtonGroup>
-                    <Button onClick={() => setRequestsModalActive(true)} active={requestsModalActive}>
-                        <IoPersonAdd size="20px" />
-                        {!reqLoading &&
-                            <RequestsNum reqs={Boolean(reqLength)}>
-                                {reqLength}
-                            </RequestsNum>}
-                    </Button>
-                    <Button onClick={() => setProfileModalActive(true)} active={profileModalActive}>
-                        <IoPerson size="20px" />
-                    </Button>
-                    <Button onClick={() => logout()}>
-                        <IoLogOutOutline size="25px" />
-                    </Button>
-                </ButtonGroup>
-            </Bar>
-            <Window active={Boolean(currentUser.id)}>
-                {currentUser.id ?
-                    <>
-                        <ChatContent>
-                            {messagesContent}
-                        </ChatContent>
-                        <TextWrapper>
-                            <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
-                            <SendButton disabled={!text} onClick={(handleSendMessage)}>Send</SendButton>
-                        </TextWrapper>
-                    </>
-                    :
-                    <div style={{ margin: '20% auto 0 auto', fontSize: '30px' }}>Welcome to Chatty</div>}
-            </Window>
-            {profileModalActive &&
-                <ProfileModal userMe={userMe} modalActive={profileModalActive} setModalActive={setProfileModalActive} />}
-            {requestsModalActive && reqData &&
-                <RequestsModal modalActive={requestsModalActive} setModalActive={setRequestsModalActive} reqData={reqData} reqLoading={reqLoading} reqError={reqError} />}
-        </Wrapper>
+        <Window active={Boolean(currentUser.id)}>
+            <ChatContent>
+                {messagesContent}
+            </ChatContent>
+            <TextWrapper>
+                <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
+                <SendButton disabled={!text} onClick={handleSendMessage}>Send</SendButton>
+            </TextWrapper>
+        </Window>
     );
 };
 

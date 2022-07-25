@@ -82,11 +82,10 @@ type PropsType = {
     reqData: IRequests,
     reqLoading: boolean,
     reqError: any,
-    modalActive: boolean,
     setModalActive: (arg: boolean) => void,
 }
 
-const RequestsModal: React.FC<PropsType> = ({ reqData, reqLoading, reqError, modalActive, setModalActive }) => {
+const RequestsModal: React.FC<PropsType> = ({ reqData, reqLoading, reqError, setModalActive }) => {
 
     const [addFriend, {loading}] = useMutation(ADD_NEW_FRIEND, {
         refetchQueries: [

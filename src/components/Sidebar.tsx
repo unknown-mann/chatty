@@ -1,13 +1,14 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useAppDispatch } from "../hooks";
 import { setCurrentChat } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
-import { ADD_NEW_FRIEND, MY_FRIENDS, SEARCH_USER } from "../apollo/requests";
+import { ADD_NEW_FRIEND, DELETE_FRIEND, MY_FRIENDS, SEARCH_USER } from "../apollo/requests";
 import { IFriends, IUsers } from "../types";
-import { IoAdd } from 'react-icons/io5';
+import { IoAdd, IoClose } from 'react-icons/io5';
 import { BeatLoader } from "react-spinners";
+import useDebounce from "../hooks/useDebounce";
 
 const Wrapper = styled.aside`
   position: relative;
@@ -54,6 +55,7 @@ const Search = styled.input.attrs({
 })`
   width: 100%;
   padding: 10px;
+  font-size: 14px;
   background-color: #f2f2f2;
   border: 1px solid #dadee0;
   border-radius: 5px;
@@ -95,7 +97,7 @@ const UserItem = styled.li`
   }
 `;
 
-const FriendItem = styled(UserItem)<{ active?: boolean }>`
+const FriendItem = styled(UserItem) <{ active?: boolean }>`
   background: ${(props) => (props.active ? "rgb(206, 237, 245)" : "")};
 `;
 
@@ -125,13 +127,41 @@ const LoaderWrapper = styled.div`
   margin-top: 100px;
 `;
 
-const Sidebar = React.memo(() => {
+const NotFound = styled.div`
+    padding: 20px;
+`;
 
-  const [searchValue, setSearchValue] = useState("");
+const Sidebar = React.memo(() => {
 
   const dispatch = useAppDispatch();
 
-  const { data: friends, loading: friendsLoading, error: friendsError } = useQuery<IFriends>(MY_FRIENDS, {
+  const [activeTab, setActiveTab] = useState(2)
+
+  const toggleTab = (index: number) => setActiveTab(index)
+
+  const [searchValue, setSearchValue] = useState("");
+  const debouncedValue = useDebounce<string>(searchValue, 500)
+
+  const [loadUsers, { data: users, loading: usersLoading, error: usersError, refetch }] = useLazyQuery<IUsers>(SEARCH_USER, {
+    variables: {
+      search: '',
+      pageNum: 0,
+      pageSize: 10
+    },
+    notifyOnNetworkStatusChange: true
+  })
+
+  const handleSearch = (evt: ChangeEvent<HTMLInputElement>) => setSearchValue(evt.target.value)
+
+  useEffect(() => {
+    refetch({
+      search: searchValue,
+      pageNum: 0,
+      pageSize: 10
+    })
+  }, [debouncedValue])
+
+  const { data: friends, loading: friendsLoading, error: friendsError, refetch: refetchFriends } = useQuery<IFriends>(MY_FRIENDS, {
     variables: {
       pageNum: 0,
       pageSize: 10
@@ -140,40 +170,39 @@ const Sidebar = React.memo(() => {
 
   const [activeChat, setActiveChat] = useState("");
 
-  const [loadUsers, { data: users, loading: usersLoading, error: usersError, refetch }] = useLazyQuery<IUsers>(SEARCH_USER, {
-    variables: {
-      search: '',
-      pageNum: 0,
-      pageSize: 10
-    }
-  })
+  const [addFriend] = useMutation(ADD_NEW_FRIEND)
 
-  const handleSearch = (evt: ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(evt.target.value)
-    refetch({
-      search: searchValue,
-      pageNum: 0,
-      pageSize: 10
-    })
+  const [deleteFriend] = useMutation(DELETE_FRIEND)
+
+  const handleDelete = async (id: string) => {
+    // eslint-disable-next-line no-restricted-globals
+    const result = confirm('Delete friend?')
+    if (result) {
+      await deleteFriend({
+        variables: {
+          userId: id
+        },
+        onCompleted: (data) => console.log(data)
+      })
+      refetchFriends({
+        pageNum: 0,
+        pageSize: 10
+      })
+    }
   }
-
-  const [addFriend] = useMutation(ADD_NEW_FRIEND, {
-    onCompleted: (data) => {
-      console.log(data)
-    }
-  })
 
   let friendsList
 
   if (friendsLoading) {
-    friendsList = 
+    friendsList =
       <LoaderWrapper>
         <BeatLoader color="gray" />
       </LoaderWrapper>
   } else if (friendsError) {
     friendsList = friendsError.message
   } else if (friends?.myFriends) {
-    friendsList =
+    friends.myFriends.length ?
+      friendsList =
       <UsersList>
         {friends.myFriends.map((friend) => (
           <FriendItem
@@ -183,15 +212,20 @@ const Sidebar = React.memo(() => {
           >
             <Avatar src={friend.googleImgUrl} />
             {friend.firstname} {friend.lastname}
+            <Button onClick={() => handleDelete(friend.id)}>
+              <IoClose size="20px" />
+            </Button>
           </FriendItem>
         ))}
       </UsersList>
+      :
+      <NotFound>No active chats</NotFound>
   }
 
   let usersList
 
   if (usersLoading) {
-    usersList = 
+    usersList =
       <LoaderWrapper>
         <BeatLoader color="gray" />
       </LoaderWrapper>
@@ -199,31 +233,28 @@ const Sidebar = React.memo(() => {
     usersList = <div>{usersError.message}</div>
   } else if (users?.usersBySearch) {
     usersList =
-      <UsersList>
-        {!usersLoading && users &&
-          users.usersBySearch.map(user => (
-            <UserItem key={user.googleImgUrl}>
-              <Avatar src={user.googleImgUrl} />
-              {user.firstname} {user.lastname}
-              <Button
-                onClick={() => addFriend({
-                  variables: {
-                    userId: user.id
-                  }
-                })}
-              >
-                <IoAdd size="20px" />
-              </Button>
-            </UserItem>
-          ))}
-      </UsersList>
+      users.usersBySearch.length ?
+        <UsersList>
+          {!usersLoading && users &&
+            users.usersBySearch.map(user => (
+              <UserItem key={user.googleImgUrl}>
+                <Avatar src={user.googleImgUrl} />
+                {user.firstname} {user.lastname}
+                <Button
+                  onClick={() => addFriend({
+                    variables: {
+                      userId: user.id
+                    }
+                  })}
+                >
+                  <IoAdd size="20px" />
+                </Button>
+              </UserItem>
+            ))}
+        </UsersList>
+        :
+        <NotFound>No users found</NotFound>
   }
-
-  const toggleTab = (index: number) => [
-    setActiveTab(index)
-  ]
-
-  const [activeTab, setActiveTab] = useState(2)
 
   return (
     <Wrapper>

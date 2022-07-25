@@ -10,12 +10,24 @@ import { useQuery } from "@apollo/client";
 import { ROOM, USER_ME } from "../apollo/requests";
 import Socket from './Socket';
 import { useAppSelector } from '../hooks';
+import Header from './Header';
 
-const Wrapper = styled.div`
+const Container = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+`;
+
+const Wrapper = styled.section`
+    width: 78%;
+`;
+
+const Welcome = styled.div`
+    padding-top: 20%;
+    height: 100%;
+    font-size: 30px;
+    text-align: center;
 `;
 
 const Chat = () => {
@@ -46,14 +58,20 @@ const Chat = () => {
         content = <Navigate to="/" />
     } else if (userMe) {
         content =
-            <Wrapper>
+            <Container>
                 <Main>
                     <Sidebar />
-                    <ChatWindow sendMessageBySocket={sendMessageBySocket} userMe={userMe} />
+                    <Wrapper>
+                        <Header userMe={userMe} />
+                        {currentUser.id ?
+                            <ChatWindow sendMessageBySocket={sendMessageBySocket} userMe={userMe} />
+                            :
+                            <Welcome>Welcome to Chatty</Welcome>}
+                    </Wrapper>
                     <Socket clientRefWrapper={clientRefWrapper} />
                 </Main>
                 <Footer />
-            </Wrapper>
+            </Container>
     }
 
     return (

@@ -35,6 +35,17 @@ export const ADD_NEW_FRIEND = gql`
     }
 `;
 
+export const DELETE_FRIEND = gql`
+    mutation DeleteFriend($userId: ID) {
+        deleteFriend(userId: $userId) {
+            id
+            email
+            firstname
+            lastname
+        }
+    }
+`;
+
 export const MY_FRIENDS = gql`
     query MyFriends($pageNum: Int, $pageSize: Int) {
         myFriends(pageNum: $pageNum, pageSize: $pageSize) {

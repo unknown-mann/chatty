@@ -53,14 +53,13 @@ const ModalField = styled.p`
 `;
 
 type PropsType = {
-    modalActive: boolean,
     setModalActive: (arg: boolean) => void,
     userMe: {
         me: UserType
     }
 }
 
-const ProfileModal: React.FC<PropsType> = ({ userMe, modalActive, setModalActive }) => {
+const ProfileModal: React.FC<PropsType> = ({ userMe, setModalActive }) => {
 
     const {
         firstname,
