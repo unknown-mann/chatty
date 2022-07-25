@@ -4,11 +4,12 @@ import { useAppDispatch, useAppSelector } from "../hooks";
 import { setCurrentChat, setRooms } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
-import { ADD_NEW_FRIEND, DELETE_FRIEND, MY_ROOMS, SEARCH_USER } from "../apollo/requests";
+import { ADD_NEW_FRIEND, DELETE_FRIEND, MESSAGE_BY_USER, MY_ROOMS, ROOM, SEARCH_USER } from "../apollo/requests";
 import { IRooms, IUsers } from "../types";
 import { IoAdd, IoClose } from 'react-icons/io5';
 import { BeatLoader } from "react-spinners";
 import useDebounce from "../hooks/useDebounce";
+import { withApollo } from '@apollo/client/react/hoc';
 
 const Wrapper = styled.aside`
   position: relative;
@@ -92,6 +93,7 @@ const UserItem = styled.li`
   display: flex;
   align-items: center;
   padding: 15px 20px;
+  cursor: pointer;
   :hover {
     background: rgba(206, 237, 245, 0.6);
   }
@@ -131,7 +133,7 @@ const NotFound = styled.div`
     padding: 20px;
 `;
 
-const Sidebar = React.memo(() => {
+const Sidebar: React.FC<any> = React.memo(({ client }) => {
 
   const currentUser = useAppSelector(state => state.users.currentUser)
   const myRooms = useAppSelector(state => state.users.rooms)
@@ -251,7 +253,13 @@ const Sidebar = React.memo(() => {
         <UsersList>
           {!usersLoading && users &&
             users.usersBySearch.map(user => (
-              <UserItem key={user.googleImgUrl}>
+              <UserItem onClick={async () => {
+                const { data } = await client.query({
+                  query: ROOM,
+                  variables: { userId: user.id }
+                });
+                dispatch(setCurrentChat(data.roomByUserId))
+              }} key={user.googleImgUrl}>
                 <Avatar src={user.googleImgUrl} />
                 {user.firstname} {user.lastname}
                 <Button
@@ -305,4 +313,4 @@ const Sidebar = React.memo(() => {
   );
 });
 
-export default Sidebar;
+export default withApollo(Sidebar);
