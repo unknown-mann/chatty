@@ -2,11 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { motion } from 'framer-motion';
-import { UserType } from '../types';
+import { IMessagesByRoomId, UserType } from '../types';
 import { useMutation, useQuery } from '@apollo/client';
-import { MESSAGE_BY_USER, SEND_MESSAGE } from '../apollo/requests'
-import { IMessagesByUserId } from '../types';
-import { setMessages } from '../app/usersSlice';
+import { MESSAGE_BY_ROOM, SEND_MESSAGE } from '../apollo/requests'
+import { setMessages, setRoom } from '../app/usersSlice';
 import { BeatLoader } from "react-spinners";
 
 
@@ -134,12 +133,12 @@ type PropsType = {
 
 const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
 
-    const currentUser = useAppSelector(state => state.users.activeChat)
+    const currentChat = useAppSelector(state => state.users.activeChat)
 
 
-    const { data: messages, loading: msgLoading, error: msgError } = useQuery<IMessagesByUserId>(MESSAGE_BY_USER, {
+    const { data: messages, loading: msgLoading, error: msgError } = useQuery<IMessagesByRoomId>(MESSAGE_BY_ROOM, {
         variables: {
-            userId: currentUser.id,
+            roomId: currentChat.id,
             pageNum: 0,
             pageSize: 20
         }
@@ -148,8 +147,8 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
     const dispatch = useAppDispatch()
 
     useEffect(() => {
-        if (messages?.messagesByUserId) {
-            dispatch(setMessages(messages.messagesByUserId))
+        if (messages?.messagesByRoomId) {
+            dispatch(setMessages(messages.messagesByRoomId))
         }
     }, [messages])
 
@@ -198,48 +197,43 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket }) => {
     const [sendMessage] = useMutation(SEND_MESSAGE, {
         variables: {
             message: {
-                text: text,
+                text,
                 fileIds: []
             },
-            userId: currentUser.id
+            userId: currentChat.id
         }
     })
 
     const handleSendMessage = () => {
+        const newMessage = {
+            id: '',
+            text,
+            fileIds: [],
+            createdAt: new Date().toUTCString(),
+            user: {
+                id: userMe.me.id,
+                email: userMe.me.email,
+                firstname: userMe.me.firstname,
+                lastname: userMe.me.lastname,
+                googleImgUrl: userMe.me.googleImgUrl
+
+            },
+            room: currentChat
+        };
         sendMessage()
         sendMessageBySocket({
-            id: currentUser.id,
-            text,
-            fileIds: [],
-            createdAt: new Date().toUTCString(),
-            user: {
-                id: userMe.me.id,
-                email: userMe.me.email,
-                firstname: userMe.me.firstname,
-                lastname: userMe.me.lastname,
-                googleImgUrl: userMe.me.googleImgUrl
-
-            }
+            type: "MESSAGE",
+            payload: newMessage
         })
         setText('')
-        dispatch(setMessages({
-            id: Date.now().toString(),
-            text,
-            fileIds: [],
-            createdAt: new Date().toUTCString(),
-            user: {
-                id: userMe.me.id,
-                email: userMe.me.email,
-                firstname: userMe.me.firstname,
-                lastname: userMe.me.lastname,
-                googleImgUrl: userMe.me.googleImgUrl
-
-            }
-        }))
+        dispatch(setMessages({ ...newMessage, id: Date.now().toString() }))
+        const copyChat = Object.assign({}, currentChat)
+        copyChat.lastMessage = newMessage
+        dispatch(setRoom(copyChat))
     }
 
     return (
-        <Window active={Boolean(currentUser.id)}>
+        <Window active={Boolean(currentChat.id)}>
             <ChatContent>
                 {messagesContent}
             </ChatContent>

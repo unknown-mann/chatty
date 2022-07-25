@@ -1,11 +1,11 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useAppDispatch } from "../hooks";
-import { setCurrentChat } from "../app/usersSlice";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { setCurrentChat, setRooms } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
-import { ADD_NEW_FRIEND, DELETE_FRIEND, MY_FRIENDS, SEARCH_USER } from "../apollo/requests";
-import { IFriends, IUsers } from "../types";
+import { ADD_NEW_FRIEND, DELETE_FRIEND, MY_ROOMS, SEARCH_USER } from "../apollo/requests";
+import { IRooms, IUsers } from "../types";
 import { IoAdd, IoClose } from 'react-icons/io5';
 import { BeatLoader } from "react-spinners";
 import useDebounce from "../hooks/useDebounce";
@@ -133,6 +133,9 @@ const NotFound = styled.div`
 
 const Sidebar = React.memo(() => {
 
+  const currentUser = useAppSelector(state => state.users.currentUser)
+  const myRooms = useAppSelector(state => state.users.rooms)
+
   const dispatch = useAppDispatch();
 
   const [activeTab, setActiveTab] = useState(2)
@@ -161,12 +164,17 @@ const Sidebar = React.memo(() => {
     })
   }, [debouncedValue])
 
-  const { data: friends, loading: friendsLoading, error: friendsError, refetch: refetchFriends } = useQuery<IFriends>(MY_FRIENDS, {
+  const { data: rooms, loading: roomsLoading, error: roomsError, refetch: refetchRooms } = useQuery<IRooms>(MY_ROOMS, {
     variables: {
       pageNum: 0,
       pageSize: 10
     }
   });
+
+  if (!roomsLoading && !myRooms.length) {
+    dispatch(setRooms(rooms?.myRooms))
+  }
+
 
   const [activeChat, setActiveChat] = useState("");
 
@@ -174,7 +182,7 @@ const Sidebar = React.memo(() => {
 
   const [deleteFriend] = useMutation(DELETE_FRIEND)
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string | undefined) => {
     // eslint-disable-next-line no-restricted-globals
     const result = confirm('Delete friend?')
     if (result) {
@@ -184,35 +192,41 @@ const Sidebar = React.memo(() => {
         },
         onCompleted: (data) => console.log(data)
       })
-      refetchFriends({
+      refetchRooms({
         pageNum: 0,
         pageSize: 10
       })
     }
   }
 
-  let friendsList
+  let roomsList
 
-  if (friendsLoading) {
-    friendsList =
+  if (roomsLoading) {
+    roomsList =
       <LoaderWrapper>
         <BeatLoader color="gray" />
       </LoaderWrapper>
-  } else if (friendsError) {
-    friendsList = friendsError.message
-  } else if (friends?.myFriends) {
-    friends.myFriends.length ?
-      friendsList =
+  } else if (roomsError) {
+    roomsList = roomsError.message
+  } else if (rooms?.myRooms) {
+    rooms.myRooms.length ?
+      roomsList =
       <UsersList>
-        {friends.myFriends.map((friend) => (
+        {rooms.myRooms.map((room) => (
           <FriendItem
-            key={friend.id}
-            onClick={() => { setActiveChat(friend.id); dispatch(setCurrentChat(friend)) }}
-            active={activeChat === friend.id}
+            key={room.id}
+            onClick={() => { setActiveChat(room.id); dispatch(setCurrentChat(room)) }}
+            active={activeChat === room.id}
           >
-            <Avatar src={friend.googleImgUrl} />
-            {friend.firstname} {friend.lastname}
-            <Button onClick={() => handleDelete(friend.id)}>
+            <Avatar src={room.users.find(user => {
+              return user.id !== currentUser.id
+            })?.googleImgUrl} />
+            {room.users.find(user => user.id !== currentUser.id)?.firstname} {room.users.find(user => user.id !== currentUser.id)?.lastname}
+            <br />
+            {room.lastMessage && room.lastMessage.text}
+            <br />
+            {room.unread}
+            <Button onClick={() => handleDelete(room.users.find(user => user.id !== currentUser.id)?.id)}>
               <IoClose size="20px" />
             </Button>
           </FriendItem>
@@ -283,7 +297,7 @@ const Sidebar = React.memo(() => {
         <>
           <TabType active={activeTab === 2} onClick={() => toggleTab(2)}>Chats</TabType>
           <TabContent active={activeTab === 2}>
-            {friendsList}
+            {roomsList}
           </TabContent>
         </>
       </SelectTab>

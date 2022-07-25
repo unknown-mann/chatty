@@ -94,7 +94,8 @@ const Header: React.FC<PropsType> = ({ userMe }) => {
         navigate('/')
     }
 
-    const currentUser = useAppSelector(state => state.users.activeChat)
+    const currentChat = useAppSelector(state => state.users.activeChat)
+    const currentUser = useAppSelector(state => state.users.currentUser)
 
     const { data: reqData, loading: reqLoading, error: reqError } = useQuery<IRequests>(FRIEND_REQUESTS, {
         variables: {
@@ -105,12 +106,17 @@ const Header: React.FC<PropsType> = ({ userMe }) => {
 
     const reqLength = reqData?.friendRequests.length
 
+    const userAvatar = currentChat.users.find(user => user.id !== currentUser.id)?.googleImgUrl;
+    const userName = currentChat.users.find(user => user.id !== currentUser.id)?.firstname;
+    const userSurname = currentChat.users.find(user => user.id !== currentUser.id)?.lastname
+    
+
     return (
         <Wrapper>
             <HeaderEl>
-                <Avatar src={currentUser.googleImgUrl} />
+                {currentChat.id && <Avatar src={userAvatar} />}
                 <User>
-                    {currentUser.firstname} {' '} {currentUser.lastname}
+                {userName} {' '} {userSurname}
                 </User>
                 <ButtonGroup>
                     <Button onClick={() => setRequestsModalActive(true)} active={requestsModalActive}>

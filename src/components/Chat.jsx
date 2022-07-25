@@ -7,10 +7,11 @@ import ChatWindow from './ChatWindow';
 import { Navigate } from 'react-router-dom';
 import { Loader } from './Loader';
 import { useQuery } from "@apollo/client";
-import { ROOM, USER_ME } from "../apollo/requests";
+import { USER_ME } from "../apollo/requests";
 import Socket from './Socket';
-import { useAppSelector } from '../hooks';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import Header from './Header';
+import { setCurrentUser } from '../app/usersSlice';
 
 const Container = styled.div`
   height: 100vh;
@@ -32,23 +33,23 @@ const Welcome = styled.div`
 
 const Chat = () => {
 
-    const currentUser = useAppSelector(state => state.users.activeChat)
-
-    const { data: room } = useQuery(ROOM, {
-        variables: {
-            userId: currentUser.id
-        }
-    })
+    const currentChat = useAppSelector(state => state.users.activeChat)
 
     let clientRefWrapper = {
         clientRef: null
     }
 
     const sendMessageBySocket = (msg) => {
-        clientRefWrapper.clientRef.sendMessage(`/app/message/${room.roomByUserId.id}`, JSON.stringify(msg));
+        clientRefWrapper.clientRef.sendMessage(`/app/message/${currentChat.id}`, JSON.stringify(msg));
     };
 
+    const dispatch = useAppDispatch()
     const { data: userMe, loading: isLoading, error: isError } = useQuery(USER_ME)
+
+    if (!isLoading) {
+        dispatch(setCurrentUser(userMe.me))
+    }
+
 
     let content
 
@@ -63,7 +64,7 @@ const Chat = () => {
                     <Sidebar />
                     <Wrapper>
                         <Header userMe={userMe} />
-                        {currentUser.id ?
+                        {currentChat.id ?
                             <ChatWindow sendMessageBySocket={sendMessageBySocket} userMe={userMe} />
                             :
                             <Welcome>Welcome to Chatty</Welcome>}

@@ -1,6 +1,8 @@
 export type StateType = {
-    activeChat: UserType
+    activeChat: IRoom
     messages: IMessage[]
+    currentUser: UserType
+    rooms: IRoom[]
 }
 
 export type UserType = {
@@ -38,15 +40,21 @@ export interface IFriends {
     myFriends: IFriend[]
 }
 
+export interface IRooms {
+    myRooms: IRoom[]
+}
+
 export interface IRoom {
     id: string
-    userIds: string[]
+    users: UserType[]
     isMultiChat: boolean
+    lastMessage?: IMessage
+    unread: number
 }
 
 export interface IMessage {
     id: string
-    roomId: string
+    room: IRoom
     text: string
     fileIds: string[]
     createdAt: string
@@ -61,6 +69,10 @@ export interface IMessage {
 
 export interface IMessagesByUserId {
     messagesByUserId: IMessage[];
+}
+
+export interface IMessagesByRoomId {
+    messagesByRoomId: IMessage[];
 }
 
 export interface IUsers {
