@@ -106,17 +106,12 @@ const Header: React.FC<PropsType> = ({ userMe }) => {
 
     const reqLength = reqData?.friendRequests.length
 
-    const userAvatar = currentChat.users.find(user => user.id !== currentUser.id)?.googleImgUrl;
-    const userName = currentChat.users.find(user => user.id !== currentUser.id)?.firstname;
-    const userSurname = currentChat.users.find(user => user.id !== currentUser.id)?.lastname
-    
-
     return (
         <Wrapper>
             <HeaderEl>
-                {currentChat.id && <Avatar src={userAvatar} />}
+                {currentChat.id && <Avatar src={currentChat.users.find(user => user.id !== currentUser.id)?.googleImgUrl} />}
                 <User>
-                {userName} {' '} {userSurname}
+                    {currentChat.users.find(user => user.id !== currentUser.id)?.firstname} {' '} {currentChat.users.find(user => user.id !== currentUser.id)?.lastname}
                 </User>
                 <ButtonGroup>
                     <Button onClick={() => setRequestsModalActive(true)} active={requestsModalActive}>
@@ -143,3 +138,68 @@ const Header: React.FC<PropsType> = ({ userMe }) => {
 };
 
 export default Header;
+
+// const Header: React.FC<PropsType> = ({ userMe }) => {
+
+//     const [profileModalActive, setProfileModalActive] = useState(false)
+//     const [requestsModalActive, setRequestsModalActive] = useState(false)
+
+//     const navigate = useNavigate()
+
+//     const { setIsAuth } = useAuth();
+
+//     const logout = () => {
+//         setIsAuth(false);
+//         localStorage.removeItem(ACCESS_TOKEN)
+//         navigate('/')
+//     }
+
+//     const currentChat = useAppSelector(state => state.users.activeChat)
+//     const currentUser = useAppSelector(state => state.users.currentUser)
+
+//     const { data: reqData, loading: reqLoading, error: reqError } = useQuery<IRequests>(FRIEND_REQUESTS, {
+//         variables: {
+//             pageNum: 0,
+//             pageSize: 10
+//         }
+//     })
+
+//     const reqLength = reqData?.friendRequests.length
+
+//     const userAvatar = currentChat.users.find(user => user.id !== currentUser.id)?.googleImgUrl;
+//     const userName = currentChat.users.find(user => user.id !== currentUser.id)?.firstname;
+//     const userSurname = currentChat.users.find(user => user.id !== currentUser.id)?.lastname
+    
+
+//     return (
+//         <Wrapper>
+//             <HeaderEl>
+//                 {currentChat.id && <Avatar src={userAvatar} />}
+//                 <User>
+//                 {userName} {' '} {userSurname}
+//                 </User>
+//                 <ButtonGroup>
+//                     <Button onClick={() => setRequestsModalActive(true)} active={requestsModalActive}>
+//                         <IoPersonAdd size="20px" />
+//                         {!reqLoading &&
+//                             <RequestsNum reqs={Boolean(reqLength)}>
+//                                 {reqLength}
+//                             </RequestsNum>}
+//                     </Button>
+//                     <Button onClick={() => setProfileModalActive(true)} active={profileModalActive}>
+//                         <IoPerson size="20px" />
+//                     </Button>
+//                     <Button onClick={() => logout()}>
+//                         <IoLogOutOutline size="25px" />
+//                     </Button>
+//                 </ButtonGroup>
+//             </HeaderEl>
+//             {profileModalActive &&
+//                 <ProfileModal userMe={userMe} setModalActive={setProfileModalActive} />}
+//             {requestsModalActive && reqData &&
+//                 <RequestsModal setModalActive={setRequestsModalActive} reqData={reqData} reqLoading={reqLoading} reqError={reqError} />}
+//         </Wrapper>
+//     );
+// };
+
+// export default Header;

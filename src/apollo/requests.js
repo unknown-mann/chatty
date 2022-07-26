@@ -141,7 +141,7 @@ export const MY_ROOMS = gql`
     }
 `;
 
-export const MESSAGE_BY_ROOM = gql`
+export const MESSAGES_BY_ROOM = gql`
     query MessagesByRoomId($roomId: String, $pageNum: Int, $pageSize: Int) {
         messagesByRoomId(roomId: $roomId, pageNum: $pageNum, pageSize: $pageSize) {
             id
@@ -177,6 +177,34 @@ export const SEND_MESSAGE_TO_ROOM = gql`
                 firstname
                 lastname
             }
+        }
+    }
+`;
+
+export const SET_READ = gql`
+    mutation SetRead($roomId: String) {
+        setRead(roomId: $roomId)
+    }
+`;
+
+export const ROOM_BY_ID = gql`
+    query RoomById($roomId: String) {
+        roomById(roomId: $roomId) {
+            id
+            users {
+                id
+                email
+                firstname
+                lastname
+                googleImgUrl
+            }
+            isMultiChat
+            lastMessage {
+                id
+                text
+                createdAt
+            }
+            unread
         }
     }
 `;

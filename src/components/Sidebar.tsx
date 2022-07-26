@@ -1,11 +1,11 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { setCurrentChat, setRooms } from "../app/usersSlice";
+import { setCurrentChat, setRoom, setRooms } from "../app/usersSlice";
 import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { ADD_NEW_FRIEND, DELETE_FRIEND, MY_ROOMS, ROOM, SEARCH_USER } from "../apollo/requests";
-import { IRooms, IUsers } from "../types";
+import { IRooms, IUsers, UserType, IRoom } from "../types";
 import { IoAdd, IoClose } from 'react-icons/io5';
 import { BeatLoader } from "react-spinners";
 import useDebounce from "../hooks/useDebounce";
@@ -93,7 +93,6 @@ const UserItem = styled.li`
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  cursor: pointer;
   :hover {
     background: rgba(206, 237, 245, 0.6);
   }
@@ -108,6 +107,7 @@ const Avatar = styled.img`
   height: 35px;
   margin-right: 20px;
   border-radius: 50%;
+  cursor: pointer;
 `;
 
 const Button = styled.button`
@@ -210,14 +210,20 @@ const Sidebar: React.FC<any> = React.memo(({ client }) => {
       </LoaderWrapper>
   } else if (roomsError) {
     roomsList = roomsError.message
-  } else if (rooms?.myRooms) {
-    rooms.myRooms.length ?
+  } else if (myRooms) {
+    myRooms.length ?
       roomsList =
       <UsersList>
-        {rooms.myRooms.map((room) => (
+        {myRooms.map((room) => (
           <FriendItem
             key={room.id}
-            onClick={() => { setActiveChat(room.id); dispatch(setCurrentChat(room)) }}
+            onClick={() => {
+              setActiveChat(room.id);
+              dispatch(setCurrentChat(room))
+              const newRoom = Object.assign({}, room)
+              newRoom.unread = 0
+              dispatch(setRoom(newRoom))
+            }}
             active={activeChat === room.id}
           >
             <Avatar src={room.users.find(user => {
@@ -253,14 +259,16 @@ const Sidebar: React.FC<any> = React.memo(({ client }) => {
         <UsersList>
           {!usersLoading && users &&
             users.usersBySearch.map(user => (
-              <UserItem onClick={async () => {
-                const { data } = await client.query({
-                  query: ROOM,
-                  variables: { userId: user.id }
-                });
-                dispatch(setCurrentChat(data.roomByUserId))
-              }} key={user.googleImgUrl}>
-                <Avatar src={user.googleImgUrl} />
+              <UserItem key={user.googleImgUrl}>
+                <Avatar
+                  onClick={async () => {
+                    const { data } = await client.query({
+                      query: ROOM,
+                      variables: { userId: user.id }
+                    });
+                    dispatch(setCurrentChat(data.roomByUserId))
+                  }}
+                  src={user.googleImgUrl} />
                 {user.firstname} {user.lastname}
                 <Button
                   onClick={() => addFriend({
@@ -314,3 +322,213 @@ const Sidebar: React.FC<any> = React.memo(({ client }) => {
 });
 
 export default withApollo(Sidebar);
+
+
+// const Sidebar: React.FC<any> = React.memo(({ client }) => {
+
+//   const currentUser = useAppSelector(state => state.users.currentUser)
+//   const myRooms = useAppSelector(state => state.users.rooms)
+
+//   const dispatch = useAppDispatch();
+
+//   const [activeTab, setActiveTab] = useState(2)
+
+//   const toggleTab = (index: number) => setActiveTab(index)
+
+//   const [searchValue, setSearchValue] = useState("");
+//   const debouncedValue = useDebounce<string>(searchValue, 500)
+
+//   const [
+//     loadUsers,
+//     {
+//       data: users,
+//       loading: usersLoading,
+//       error: usersError,
+//       refetch
+//     }] = useLazyQuery<IUsers>(SEARCH_USER, {
+//       variables: {
+//         search: '',
+//         pageNum: 0,
+//         pageSize: 10
+//       },
+//       notifyOnNetworkStatusChange: true
+//     })
+
+//   const handleSearch = (evt: ChangeEvent<HTMLInputElement>) => setSearchValue(evt.target.value)
+
+//   useEffect(() => {
+//     refetch({
+//       search: searchValue,
+//       pageNum: 0,
+//       pageSize: 10
+//     })
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, [debouncedValue])
+
+//   const {
+//     data: rooms,
+//     loading: roomsLoading,
+//     error: roomsError,
+//     refetch: refetchRooms
+//   } = useQuery<IRooms>(MY_ROOMS, {
+//     variables: {
+//       pageNum: 0,
+//       pageSize: 10
+//     }
+//   });
+
+//   if (!roomsLoading && !myRooms.length) {
+//     dispatch(setRooms(rooms?.myRooms))
+//   }
+
+//   const [activeChat, setActiveChat] = useState("");
+
+//   const [addFriend] = useMutation(ADD_NEW_FRIEND)
+
+//   const [deleteFriend] = useMutation(DELETE_FRIEND)
+
+//   const handleDelete = async (id: string | undefined) => {
+//     // eslint-disable-next-line no-restricted-globals
+//     const result = confirm('Delete friend?')
+//     if (result) {
+//       await deleteFriend({
+//         variables: {
+//           userId: id
+//         }
+//       })
+//       refetchRooms({
+//         pageNum: 0,
+//         pageSize: 10
+//       })
+//     }
+//   }
+
+//   const handleSetActiveChat = (room: IRoom) => {
+//     setActiveChat(room.id);
+//     dispatch(setCurrentChat(room))
+//     const newRoom = Object.assign({}, room)
+//     newRoom.unread = 0
+//     dispatch(setRoom(newRoom))
+//   }
+
+//   const getUserAvatar = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.googleImgUrl
+//   const getUserFirstname = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.firstname
+//   const getUserLastname = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.lastname
+
+//   let roomsList
+
+//   if (roomsLoading) {
+//     roomsList =
+//       <LoaderWrapper>
+//         <BeatLoader color="gray" />
+//       </LoaderWrapper>
+//   } else if (roomsError) {
+//     roomsList = roomsError.message
+//   } else if (myRooms) {
+//     myRooms.length ?
+//       roomsList =
+//       <UsersList>
+//         {myRooms.map((room) => (
+//           <FriendItem
+//             key={room.id}
+//             onClick={() => handleSetActiveChat(room)}
+//             active={activeChat === room.id}
+//           >
+//             <Avatar src={getUserAvatar(room)} />
+//             {getUserFirstname(room)}
+//             {getUserLastname(room)}
+//             <br />
+//             {room.lastMessage && room.lastMessage.text}
+//             <br />
+//             {room.unread}
+//             <Button onClick={() => handleDelete(room.users.find(user => user.id !== currentUser.id)?.id)}>
+//               <IoClose size="20px" />
+//             </Button>
+//           </FriendItem>
+//         ))}
+//       </UsersList>
+//       :
+//       <NotFound>No active chats</NotFound>
+//   }
+
+//   const handleSetNewChat = async (user: UserType) => {
+//     const { data } = await client.query({
+//       query: ROOM,
+//       variables: { userId: user.id }
+//     });
+//     dispatch(setCurrentChat(data.roomByUserId))
+//   }
+
+//   let usersList
+
+//   if (usersLoading) {
+//     usersList =
+//       <LoaderWrapper>
+//         <BeatLoader color="gray" />
+//       </LoaderWrapper>
+//   } else if (usersError) {
+//     usersList = <div>{usersError.message}</div>
+//   } else if (users?.usersBySearch) {
+//     usersList =
+//       users.usersBySearch.length ?
+//         <UsersList>
+//           {!usersLoading && users &&
+//             users.usersBySearch.map(user => (
+//               <UserItem
+//                 key={user.googleImgUrl}
+//                 onClick={() => handleSetNewChat(user)}
+//               >
+//                 <Avatar src={user.googleImgUrl} />
+//                 {user.firstname} {user.lastname}
+//                 <Button
+//                   onClick={() => addFriend({
+//                     variables: {
+//                       userId: user.id
+//                     }
+//                   })}
+//                 >
+//                   <IoAdd size="20px" />
+//                 </Button>
+//               </UserItem>
+//             ))}
+//         </UsersList>
+//         :
+//         <NotFound>No users found</NotFound>
+//   }
+
+//   return (
+//     <Wrapper>
+//       <SelectTab>
+//         <>
+//           <TabType active={activeTab === 1} onClick={() => { toggleTab(1); loadUsers() }}>Users</TabType>
+//           <TabContent active={activeTab === 1}>
+//             <SearchWrapper>
+//               <Search
+//                 value={searchValue}
+//                 onChange={handleSearch}
+//               />
+//               {searchValue ? (
+//                 <ClearIcon>
+//                   <IoCloseOutline onClick={() => { setSearchValue(""); refetch({ search: '', pageNum: 0, pageSize: 10 }) }} size="20px" />
+//                 </ClearIcon>
+//               ) : (
+//                 <SearchIcon>
+//                   <IoSearchOutline size="17px" />
+//                 </SearchIcon>
+//               )}
+//             </SearchWrapper>
+//             {activeTab === 1 && usersList}
+//           </TabContent>
+//         </>
+//         <>
+//           <TabType active={activeTab === 2} onClick={() => toggleTab(2)}>Chats</TabType>
+//           <TabContent active={activeTab === 2}>
+//             {roomsList}
+//           </TabContent>
+//         </>
+//       </SelectTab>
+//     </Wrapper>
+//   );
+// });
+
+// export default withApollo(Sidebar);

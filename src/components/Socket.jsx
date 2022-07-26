@@ -2,9 +2,11 @@ import SockJsClient from "react-stomp";
 import { ACCESS_TOKEN } from "../constants";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { setMessages, setRoom } from "../app/usersSlice";
+import { ROOM_BY_ID, SET_READ } from "../apollo/requests";
+import { withApollo } from "@apollo/client/react/hoc";
 
 
-const Socket = ({ clientRefWrapper }) => {
+const Socket = ({ clientRefWrapper, client }) => {
 
   const dispatch = useAppDispatch()
 
@@ -22,26 +24,42 @@ const Socket = ({ clientRefWrapper }) => {
         }}
         onMessage={(msg) => {
           if (msg.type === "MESSAGE") {
-            const newRoom = Object.assign({}, msg.payload.room)
+            let newRoom = Object.assign({}, msg.payload.room)
             newRoom.lastMessage = msg.payload
-            if (currentChat.id === msg.payload.room.id) {
+            if (currentChat.id === newRoom.id) {
               dispatch(setMessages(msg.payload))
+              client.mutate({
+                mutation: SET_READ,
+                variables: { roomId: newRoom.id }
+              })
+              dispatch(setRoom(newRoom))
             } else {
               const prev = myRooms.find(room => room.id === msg.payload.room.id)
               if (prev) {
                 newRoom.unread = prev.unread + 1
+                dispatch(setRoom(newRoom))
+              } else {
+                client.query({
+                  query: ROOM_BY_ID,
+                  variables: { roomId: newRoom.id }
+                })
+                  .then(data => {
+                    newRoom = data.data.roomById
+                    dispatch(setRoom(newRoom))
+                  })
+                  .catch(err => {
+                    console.log(err)
+                  })
               }
-              // TODO иначе грузить room из бэка
             }
-            dispatch(setRoom(newRoom))
           }
         }}
-        ref={(client) => {
-          clientRefWrapper.clientRef = client;
+        ref={(clientRef) => {
+          clientRefWrapper.clientRef = clientRef;
         }}
       />}
     </>
   );
 };
 
-export default Socket;
+export default withApollo(Socket);
