@@ -26,6 +26,7 @@ const Modal = styled(motion.div)`
 const ModalContent = styled(motion.div)<{ismobile: boolean}>`
     width: ${props => props.ismobile ? '300px' : '400px'};
     height: ${props => props.ismobile ? '400px' : '500px'};
+    margin-bottom: ${props => props.ismobile ? '200px' : ''};
     padding: 10px 0;
     font-size: 20px;
     border-radius: 10px;
