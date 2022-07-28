@@ -8,7 +8,6 @@ export const USER_ME = gql`
             firstname
             lastname
             googleImgUrl
-            online
         }
     }
 `;
@@ -100,6 +99,7 @@ export const SEARCH_USER = gql`
             firstname
             lastname
             googleImgUrl
+            online
         }
     }
 `;

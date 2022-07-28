@@ -112,6 +112,8 @@ const Users: React.FC = () => {
             notifyOnNetworkStatusChange: true
         })
 
+        // console.log(users?.usersBySearch)
+
     const mounted = useRef<boolean>()
 
     useEffect(() => {

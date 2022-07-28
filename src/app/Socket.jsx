@@ -52,6 +52,10 @@ const Socket = ({ clientRefWrapper, client }) => {
                   })
               }
             }
+          } else if (msg.type === 'ONLINE') {
+            console.log("Online: ", msg.payload)
+          } else if (msg.type === 'OFFLINE') {
+            console.log("Offline: ", msg.payload)
           }
         }}
         ref={(clientRef) => {

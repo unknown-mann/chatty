@@ -110,7 +110,12 @@ const MessageSender = styled.div`
 
 const MessageContent = styled.div`
     width: 80%;
+    @media(max-width: 768px) {
+        width: 300px;
+    };
     font-weight: 400;
+    overflow: hidden;
+    white-space: wrap;
     color: #475466;
 `;
 
