@@ -36,18 +36,18 @@ const TextWrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 10px;
+    padding: 15px 0;
     border-top: 1px solid #DADEE0;
-    @media(max-width: 768px) {
-        flex-direction: column;
-    };
 `;
 
 const TextArea = styled(motion.textarea).attrs({
     placeholder: "Type here..",
 })`
-    width: 100%;
-    margin: 0 auto;
+    width: 80%;
+    @media (max-width: 768px) {
+        width: 70%;
+    }
+    margin-right: 10px;
     padding: 10px;
     font-family: "HelveticaNeueCyr", Arial, sans-serif;
     font-size: 14px;
@@ -64,8 +64,7 @@ const TextArea = styled(motion.textarea).attrs({
 
 const SendButton = styled.button`
     width: 70px;
-    margin-left: auto;
-    margin-top: 5px;
+    align-self: flex-end;
     font-family: "HelveticaNeueCyr", Arial, sans-serif;
     font-size: 16px;
     color: white;
@@ -256,10 +255,8 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, setActive, mobile }) => {
                 {messagesContent}
             </ChatContent>
             <TextWrapper>
-                <div style={{width: '90%', display: 'flex', flexDirection: 'column'}}>
-                    <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
-                    <SendButton disabled={!text} onClick={handleSendMessage}>Send</SendButton>
-                </div>
+                <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
+                <SendButton disabled={!text} onClick={handleSendMessage}>Send</SendButton>
             </TextWrapper>
         </Window>
     );

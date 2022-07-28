@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 const Container = styled.main`
     width: 100%;
+    height: 100%;
     display: grid;
     grid-template-columns: 320px 3fr;
     @media (max-width: 768px) {
