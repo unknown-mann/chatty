@@ -71,8 +71,11 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, loading, error }) => {
         firstname,
         lastname,
         email,
-        googleImgUrl
+        googleImgUrl,
+        online
     } = userMe.me;
+
+    console.log(online)
 
     let content
 

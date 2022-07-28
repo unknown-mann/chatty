@@ -15,7 +15,8 @@ const initialState: StateType = {
         firstname: '',
         lastname: '',
         googleImgUrl: 'https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg',
-        friends: []
+        friends: [],
+        online: false
     },
     rooms: []
 }

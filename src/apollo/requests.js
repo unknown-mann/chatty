@@ -8,6 +8,7 @@ export const USER_ME = gql`
             firstname
             lastname
             googleImgUrl
+            online
         }
     }
 `;

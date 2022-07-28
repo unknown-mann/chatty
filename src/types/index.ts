@@ -11,6 +11,7 @@ export type UserType = {
     firstname: string,
     lastname: string,
     googleImgUrl: string,
+    online: boolean,
     friends?: UserType[]
 }
 
@@ -38,6 +39,7 @@ export interface IFriend {
     firstname: string
     lastname: string
     googleImgUrl: string
+    online: boolean
 }
 
 export interface IFriends {

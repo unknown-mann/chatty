@@ -42,14 +42,14 @@ const LoaderWrapper = styled.div`
 `;
 
 const Empty = styled.div`
-    height: 100%;
+    margin-top: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
 `;
 
 const NumUnreadMsg = styled.div`
-    width: 20px;
+    width: 30px;
     height: 20px;
     display: flex;
     justify-content: center;
@@ -65,6 +65,9 @@ const UnreadMsg = styled.div`
     margin-top: 5px;
     color: #475466;
     font-size: 15px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 `;
 
 const Rooms = () => {
@@ -124,8 +127,10 @@ const Rooms = () => {
                             active={activeChat === room.id}
                         >
                             <Avatar src={getUserAvatar(room)} />
-                            <div>
-                                {getUserFirstname(room)} {getUserLastname(room)}
+                            <div style={{ width: '100%', overflow: 'hidden' }}>
+                                <div style={{padding: '1px'}}> 
+                                    {getUserFirstname(room)} {getUserLastname(room)}
+                                </div>
                                 <UnreadMsg>
                                     {room.lastMessage && room.lastMessage.text}
                                 </UnreadMsg>

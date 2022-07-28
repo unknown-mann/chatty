@@ -51,11 +51,6 @@ const Chat = () => {
         clientRef: null
     }
 
-    const sendMessageBySocket = (msg: any) => {
-        //@ts-ignore
-        clientRefWrapper.clientRef.sendMessage(`/app/message/${currentChat.id}`, JSON.stringify(msg));
-    };
-
     const dispatch = useAppDispatch()
     const { data: userMe, loading: isLoading, error: isError } = useQuery<UserMeType>(USER_ME)
 
@@ -100,7 +95,7 @@ const Chat = () => {
                         <Wrapper>
                             <Header active={active} setActive={setActive} userMe={userMe} />
                             {currentChat.id ?
-                                <ChatWindow mobile={mobile} setActive={setActive} sendMessageBySocket={sendMessageBySocket} userMe={userMe} />
+                                <ChatWindow mobile={mobile} setActive={setActive} userMe={userMe} />
                                 :
                                 <Welcome onClick={() => { mobile && setActive(false) }}>
                                     Welcome to Chatty

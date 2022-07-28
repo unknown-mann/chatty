@@ -109,11 +109,13 @@ const MessageSender = styled.div`
 `;
 
 const MessageContent = styled.div`
+    width: 80%;
     font-weight: 400;
     color: #475466;
 `;
 
 const TimeStamp = styled.div`
+    width: 50px;
     font-size: 12px;
 `;
 
@@ -128,12 +130,11 @@ type PropsType = {
     userMe: {
         me: UserType
     },
-    sendMessageBySocket: (arg: any) => void,
     setActive: (arg: any) => void,
     mobile: boolean
 }
 
-const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket, setActive, mobile }) => {
+const ChatWindow: React.FC<PropsType> = ({ userMe, setActive, mobile }) => {
 
     const dispatch = useAppDispatch()
 
@@ -189,7 +190,7 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket, setActiv
                                     <MessageSender>{msg.user.firstname} {msg.user.lastname}</MessageSender>
                                     <MessageContent>{msg.text}</MessageContent>
                                 </div>
-                                <TimeStamp>{new Date(msg.createdAt).toLocaleString('en-GB')}</TimeStamp>
+                                <TimeStamp>{new Date(msg.createdAt).toLocaleString('ru-RU')}</TimeStamp>
                             </MessageWrapper>
                         </MessageItem>
                     ))}
@@ -227,10 +228,6 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, sendMessageBySocket, setActiv
             room: currentChat
         };
         sendMessage()
-        sendMessageBySocket({
-            type: "MESSAGE",
-            payload: newMessage
-        })
         setText('')
         dispatch(setMessages({ ...newMessage, id: Date.now() }))
         const copyChat = Object.assign({}, currentChat)
