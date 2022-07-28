@@ -8,6 +8,7 @@ import { IoAdd } from 'react-icons/io5';
 import { BeatLoader } from 'react-spinners';
 import Users from './Users';
 import { SiZeromq } from "react-icons/si"
+import { useMatchMedia } from '../hooks/useMatchMedia';
 
 const Modal = styled(motion.div)`
     z-index: 1;
@@ -22,9 +23,9 @@ const Modal = styled(motion.div)`
     background: rgba(0, 0, 0, 0.5);
 `;
 
-const ModalContent = styled(motion.div)`
-    width: 400px;
-    height: 500px;
+const ModalContent = styled(motion.div)<{ismobile: boolean}>`
+    width: ${props => props.ismobile ? '300px' : '400px'};
+    height: ${props => props.ismobile ? '400px' : '500px'};
     padding: 10px 0;
     font-size: 20px;
     border-radius: 10px;
@@ -94,10 +95,10 @@ const LoaderWrapper = styled.div`
     align-items: center;
 `;
 
-const RequestsNum = styled.span<{ reqs: boolean }>`
+const RequestsNum = styled.span<{ reqs: boolean, ismobile: boolean }>`
     position: absolute;
     top: 10px;
-    right: 48px;
+    right: ${props => props.ismobile ? '25px' : '48px'};
     width: 10px;
     height: 10px;
     font-size: 8px;
@@ -127,6 +128,9 @@ type PropsType = {
 }
 
 const Friends: React.FC<PropsType> = ({ setModalActive, reqData, reqLoading, reqError, refetchReq, reqLength }) => {
+
+    //@ts-ignore
+    const { isMobile } = useMatchMedia()
 
     const [activeTab, setActiveTab] = useState(1)
 
@@ -179,7 +183,9 @@ const Friends: React.FC<PropsType> = ({ setModalActive, reqData, reqLoading, req
 
     return (
         <Modal onClick={() => setModalActive(false)}>
-            <ModalContent onClick={(evt) => evt.stopPropagation()}>
+            <ModalContent
+                ismobile={isMobile}
+                onClick={(evt) => evt.stopPropagation()}>
                 <SelectTab>
                     <TabType
                         active={activeTab === 1}
@@ -192,7 +198,7 @@ const Friends: React.FC<PropsType> = ({ setModalActive, reqData, reqLoading, req
                         onClick={() => toggleTab(2)}
                     >
                         REQUESTS
-                        {!reqLoading && <RequestsNum reqs={Boolean(reqLength)}>
+                        {!reqLoading && <RequestsNum reqs={Boolean(reqLength)} ismobile={isMobile}>
                             {reqLength}
                         </RequestsNum>}
                     </TabType>

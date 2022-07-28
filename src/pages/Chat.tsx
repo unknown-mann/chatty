@@ -14,6 +14,7 @@ import Header from '../components/Header';
 import { setCurrentUser } from '../app/usersSlice';
 import { UserMeType } from '../types';
 import { useMatchMedia } from '../hooks/useMatchMedia';
+import { BeatLoader } from 'react-spinners';
 
 const Container = styled.div`
     height: 100vh;
@@ -33,6 +34,13 @@ const Welcome = styled.div`
     padding-top: 20%;
     font-size: 30px;
     text-align: center;
+`;
+
+const LoaderWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40%;
 `;
 
 const Chat = () => {
@@ -61,6 +69,7 @@ const Chat = () => {
     //@ts-ignore
     const { isMobile } = useMatchMedia()
 
+
     useEffect(() => {
         if (isMobile) {
             setActive(false)
@@ -74,7 +83,12 @@ const Chat = () => {
     let content
 
     if (isLoading) {
-        content = <Loader />
+        content =
+            isMobile ?
+                <LoaderWrapper>
+                    <BeatLoader />
+                </LoaderWrapper>
+                : <Loader />
     } else if (isError) {
         content = <Navigate to="/" />
     } else if (userMe) {

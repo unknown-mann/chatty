@@ -120,7 +120,7 @@ const Users: React.FC = () => {
         } else {
             loadUsers({
                 variables: {
-                    search: searchValue,
+                    search: searchValue.toLowerCase(),
                     pageNum: 0,
                     pageSize: 10
                 },

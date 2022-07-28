@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { UserType } from '../types';
 import { ApolloError } from '@apollo/client';
 import { BeatLoader } from 'react-spinners';
+import { useMatchMedia } from '../hooks/useMatchMedia';
 
 const Modal = styled.div`
     z-index: 1;
@@ -63,6 +64,9 @@ type PropsType = {
 
 const ProfileModal: React.FC<PropsType> = ({ userMe, loading, error }) => {
 
+    //@ts-ignore
+    const {isMobile} = useMatchMedia()
+
     const {
         firstname,
         lastname,
@@ -99,7 +103,7 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, loading, error }) => {
         <Modal>
             <ModalContent
                 initial={{ x: 150 }}
-                animate={{ x: -170 }}
+                animate={isMobile ? { x: -100 } : { x: -170 }}
                 onClick={(e) => e.stopPropagation()}>
                 {content}
             </ModalContent>
