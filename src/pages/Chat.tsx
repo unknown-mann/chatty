@@ -18,6 +18,7 @@ import { BeatLoader } from 'react-spinners';
 
 const Container = styled.div`
     height: 100vh;
+    max-height: 100vh;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 8fr 1fr;

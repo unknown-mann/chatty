@@ -18,7 +18,9 @@ const initialState: StateType = {
         friends: [],
         online: false
     },
-    rooms: []
+    rooms: [],
+    usersBySearch: [],
+    friends: []
 }
 
 const userSlice = createSlice({
@@ -30,6 +32,9 @@ const userSlice = createSlice({
         },
         setMessages(state, action) {
             state.messages = state.messages.concat(action.payload)
+        },
+        removeMessages(state) {
+            state.messages = []
         },
         setCurrentUser(state, action) {
             state.currentUser = action.payload
@@ -43,10 +48,36 @@ const userSlice = createSlice({
         },
         setRooms(state, action) {
             state.rooms = action.payload
+        },
+        setUsersBySearch(state, action) {
+            state.usersBySearch = action.payload
+        },
+        setOnline(state, action) {
+            const user = state.usersBySearch.find(user => user.id === action.payload.id)
+            if (user) {
+                user.online = true
+            }
+            const friend = state.friends.find(friend => friend.id === action.payload.id)
+            if (friend) {
+                friend.online = true
+            }
+        },
+        setOffline(state, action) {
+            const user = state.usersBySearch.find(user => user.id === action.payload.id)
+            if (user) {
+                user.online = false
+            }
+            const friend = state.friends.find(friend => friend.id === action.payload.id)
+            if (friend) {
+                friend.online = false
+            }
+        },
+        setFriends(state, action) {
+            state.friends = action.payload
         }
     }
 })
 
 export default userSlice.reducer
 
-export const { setCurrentChat, setMessages, setCurrentUser, setRoom, setRooms } = userSlice.actions
+export const { setCurrentChat, setMessages, removeMessages, setCurrentUser, setRoom, setRooms, setUsersBySearch, setOnline, setOffline, setFriends } = userSlice.actions

@@ -103,7 +103,7 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, loading, error }) => {
         <Modal>
             <ModalContent
                 initial={{ x: 150 }}
-                animate={isMobile ? { x: -50 } : { x: -170 }}
+                animate={isMobile ? { x: -40 } : { x: -170 }}
                 onClick={(e) => e.stopPropagation()}>
                 {content}
             </ModalContent>

@@ -1,7 +1,7 @@
 import SockJsClient from "react-stomp";
 import { ACCESS_TOKEN } from "../constants";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { setMessages, setRoom } from "./usersSlice";
+import { setMessages, setOffline, setOnline, setRoom } from "./usersSlice";
 import { ROOM_BY_ID, SET_READ } from "../apollo/requests";
 import { withApollo } from "@apollo/client/react/hoc";
 
@@ -54,8 +54,10 @@ const Socket = ({ clientRefWrapper, client }) => {
             }
           } else if (msg.type === 'ONLINE') {
             console.log("Online: ", msg.payload)
+            dispatch(setOnline(msg.payload))
           } else if (msg.type === 'OFFLINE') {
             console.log("Offline: ", msg.payload)
+            dispatch(setOffline(msg.payload))
           }
         }}
         ref={(clientRef) => {

@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { BeatLoader } from 'react-spinners';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { setCurrentChat, setRoom, setRooms } from "../app/usersSlice";
+import { removeMessages, setCurrentChat, setRoom, setRooms } from "../app/usersSlice";
 import { IRoom, IRooms } from '../types';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { MY_ROOMS } from '../apollo/requests';
 import { SiZeromq } from 'react-icons/si';
+import { DELETE_ROOM } from '../apollo/requests';
+import { IoCloseOutline } from 'react-icons/io5';
+import { motion } from 'framer-motion';
 
 const UsersList = styled.ul`
     margin-top: 10px;
@@ -16,6 +19,7 @@ const UsersList = styled.ul`
 `;
 
 const FriendItem = styled.li<{ active: boolean }>`
+    position: relative;
     display: flex;
     align-items: center;
     padding: 15px 20px;
@@ -70,6 +74,20 @@ const UnreadMsg = styled.div`
     white-space: nowrap;
 `;
 
+const Button = styled(motion.button)`
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    :active {
+        opacity: 0.6;
+    }
+`;
+
 const Rooms = () => {
 
     const dispatch = useAppDispatch();
@@ -78,6 +96,26 @@ const Rooms = () => {
 
     const currentUser = useAppSelector(state => state.users.currentUser)
     const myRooms = useAppSelector(state => state.users.rooms)
+
+    const [deleteRoom] = useMutation(DELETE_ROOM, {
+        onCompleted: data => {
+            console.log(data)
+        }
+    })
+
+    const handleDeleteRoom = (id: number) => async (evt: React.MouseEvent<HTMLButtonElement>) => {
+        evt.stopPropagation()
+        // eslint-disable-next-line no-restricted-globals
+        const result = confirm('Clear chat?')
+        if (result) {
+            await deleteRoom({
+                variables: {
+                    roomId: id
+                }
+            })
+            console.log('deleted')
+        }
+    }
 
     const {
         data: rooms,
@@ -91,11 +129,12 @@ const Rooms = () => {
         }
     });
 
-    if (!roomsLoading && !myRooms.length) {
+    if (!roomsLoading && !myRooms?.length) {
         dispatch(setRooms(rooms?.myRooms))
     }
 
     const handleSetActiveRoom = (room: IRoom) => {
+        dispatch(removeMessages())
         setActiveChat(room.id);
         dispatch(setCurrentChat(room))
         const newRoom = Object.assign({}, room)
@@ -128,7 +167,7 @@ const Rooms = () => {
                         >
                             <Avatar src={getUserAvatar(room)} />
                             <div style={{ width: '100%', overflow: 'hidden' }}>
-                                <div style={{padding: '1px'}}> 
+                                <div style={{ padding: '1px' }}>
                                     {getUserFirstname(room)} {getUserLastname(room)}
                                 </div>
                                 <UnreadMsg>
@@ -138,6 +177,12 @@ const Rooms = () => {
                             <NumUnreadMsg>
                                 {room.unread}
                             </NumUnreadMsg>
+                            <Button
+                                whileHover={{ scale: 1.3 }}
+                                transition={{ type: 'ease' }}
+                                onClick={handleDeleteRoom(room.id)}>
+                                <IoCloseOutline size="20px" />
+                            </Button>
                         </FriendItem>
                     ))}
                 </UsersList>

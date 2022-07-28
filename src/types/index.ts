@@ -2,7 +2,9 @@ export type StateType = {
     activeChat: IRoom
     messages: IMessage[]
     currentUser: UserType
-    rooms: IRoom[]
+    rooms: IRoom[],
+    usersBySearch: UserType[],
+    friends: UserType[]
 }
 
 export type UserType = {

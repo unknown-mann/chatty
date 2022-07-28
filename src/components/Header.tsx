@@ -28,7 +28,7 @@ const HeaderEl = styled.header`
 `;
 
 const User = styled.div`
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 400;
 `;
 

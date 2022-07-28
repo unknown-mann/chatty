@@ -1,15 +1,16 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { motion } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BeatLoader } from 'react-spinners';
 import styled from 'styled-components';
 import { DELETE_FRIEND, MY_FRIENDS, ROOM } from '../apollo/requests';
 import { IFriends, UserType } from '../types';
 import { IoPersonRemoveOutline } from 'react-icons/io5';
-import { useAppDispatch } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { setCurrentChat } from '../app/usersSlice';
 import { withApollo } from '@apollo/client/react/hoc';
 import { SiZeromq } from "react-icons/si"
+import { setFriends } from '../app/usersSlice';
 
 
 const UsersList = styled.ul`
@@ -19,7 +20,8 @@ const UsersList = styled.ul`
   color: #475466;
 `;
 
-const ListItem = styled.li<{ isDisabled: boolean, active: boolean }>`
+const ListItem = styled.li<{ isDisabled: boolean, active: boolean, status: boolean }>`
+    position: relative;
     display: flex;
     align-items: center;
     padding: 15px 20px;
@@ -28,8 +30,20 @@ const ListItem = styled.li<{ isDisabled: boolean, active: boolean }>`
     cursor: pointer;
     background: ${(props) => (props.active ? "rgb(206, 237, 245)" : "")};
     :hover {
-    background: rgba(206, 237, 245, 0.6);
-}
+        background: rgba(206, 237, 245, 0.6);
+    };
+    &:before {
+        position: absolute;
+        top: 45px;
+        left: 50px;
+        content: '';
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border: 1px solid white;
+        border-radius: 50%;
+        background-color: ${props => props.status ? 'green' : 'red'};
+    }
 `;
 
 const LoaderWrapper = styled.div`
@@ -79,6 +93,8 @@ const Friends: React.FC<any> = ({ client }) => {
         dispatch(setCurrentChat(data.roomByUserId))
     }
 
+    const myFriends = useAppSelector(state => state.users.friends)
+
     const {
         data: friends,
         loading: friendsLoading,
@@ -91,6 +107,10 @@ const Friends: React.FC<any> = ({ client }) => {
         },
         notifyOnNetworkStatusChange: true
     })
+
+    useEffect(() => {
+        dispatch(setFriends(friends?.myFriends))
+    }, [friends])
 
     const [deleteFriend, { loading: deleteLoading }] = useMutation(DELETE_FRIEND)
 
@@ -119,15 +139,17 @@ const Friends: React.FC<any> = ({ client }) => {
             </LoaderWrapper>
     } else if (friendsError) {
         friendsList = <div>{friendsError.message}</div>
-    } else if (friends) {
+    } else if (myFriends) {
         friendsList =
-            friends?.myFriends.length ?
-                friends.myFriends.map((friend) => (
+            myFriends.length ?
+                myFriends.map((friend) => (
                     <ListItem
+                        key={friend.id}
                         onClick={() => { handleSetNewChat(friend); setActiveChat(friend.id) }}
                         isDisabled={deleteLoading}
                         active={activeChat === friend.id}
-                        key={friend.id}>
+                        status={friend.online}
+                    >
                         <Avatar src={friend.googleImgUrl} />
                         {friend.firstname} {friend.lastname}
                         <Button
@@ -140,7 +162,7 @@ const Friends: React.FC<any> = ({ client }) => {
                 ))
                 :
                 <Empty>
-                    <SiZeromq color="lightgray" size="100px"/>
+                    <SiZeromq color="lightgray" size="100px" />
                 </Empty>
     }
 

@@ -4,9 +4,11 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { IoCloseOutline, IoPersonAddOutline, IoSearchOutline } from 'react-icons/io5';
 import { BeatLoader } from 'react-spinners';
 import styled from 'styled-components';
-import { ADD_NEW_FRIEND, SEARCH_USER } from '../apollo/requests';
+import { ADD_NEW_FRIEND, MY_FRIENDS, SEARCH_USER } from '../apollo/requests';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import useDebounce from '../hooks/useDebounce';
 import { IUsers } from '../types';
+import { setUsersBySearch } from '../app/usersSlice';
 
 const LoaderWrapper = styled.div`
     height: 80%;
@@ -24,13 +26,26 @@ const UsersList = styled.ul`
     overflow: auto;
 `;
 
-const UserItem = styled.li<{ isDisabled?: boolean }>`
+const UserItem = styled.li<{ isDisabled: boolean, status: boolean }>`
+    position: relative;
     display: flex;
     align-items: center;
     padding: 15px 20px;
     opacity: ${props => props.isDisabled ? '0.5' : ''};
     :not(:last-child) {
         border-bottom: 1px solid #DADEE0;
+    };
+    &:before {
+        position: absolute;
+        top: 45px;
+        left: 50px;
+        content: '';
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border: 1px solid white;
+        border-radius: 50%;
+        background-color: ${props => props.status ? 'green' : 'red'};
     }
 `;
 
@@ -97,10 +112,14 @@ const ClearIcon = styled(Icon)`
 
 const Users: React.FC = () => {
 
+    const dispatch = useAppDispatch()
+
     const [searchValue, setSearchValue] = useState("");
     const debouncedValue = useDebounce<string>(searchValue, 500)
 
     const handleSearch = (evt: ChangeEvent<HTMLInputElement>) => setSearchValue(evt.target.value)
+
+    const usersBySearch = useAppSelector(state => state.users.usersBySearch)
 
     const [
         loadUsers,
@@ -112,7 +131,9 @@ const Users: React.FC = () => {
             notifyOnNetworkStatusChange: true
         })
 
-        // console.log(users?.usersBySearch)
+    useEffect(() => {
+        dispatch(setUsersBySearch(users?.usersBySearch))
+    }, [users])
 
     const mounted = useRef<boolean>()
 
@@ -131,7 +152,12 @@ const Users: React.FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedValue])
 
-    const [addFriend] = useMutation(ADD_NEW_FRIEND)
+    const [addFriend, {loading}] = useMutation(ADD_NEW_FRIEND, {
+        refetchQueries: [
+            { query: MY_FRIENDS },
+            'MyFriends'
+        ]
+    })
 
     let usersList
 
@@ -142,13 +168,15 @@ const Users: React.FC = () => {
             </LoaderWrapper>
     } else if (usersError) {
         usersList = <div>{usersError.message}</div>
-    } else if (users?.usersBySearch) {
+    } else if (usersBySearch) {
         usersList =
-            users.usersBySearch.length ?
+            usersBySearch.length ?
                 <UsersList>
-                    {!usersLoading && users &&
-                        users.usersBySearch.map(user => (
+                    {!usersLoading && usersBySearch &&
+                        usersBySearch.map(user => (
                             <UserItem
+                                isDisabled={loading}
+                                status={user.online}
                                 key={user.googleImgUrl}
                             >
                                 <Avatar src={user.googleImgUrl} />

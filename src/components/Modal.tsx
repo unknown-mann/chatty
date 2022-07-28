@@ -23,10 +23,10 @@ const Modal = styled(motion.div)`
     background: rgba(0, 0, 0, 0.5);
 `;
 
-const ModalContent = styled(motion.div)<{ismobile: boolean}>`
-    width: ${props => props.ismobile ? '300px' : '400px'};
-    height: ${props => props.ismobile ? '400px' : '500px'};
-    margin-bottom: ${props => props.ismobile ? '200px' : ''};
+const ModalContent = styled(motion.div)<{mobile: boolean}>`
+    width: ${props => props.mobile ? '300px' : '400px'};
+    height: ${props => props.mobile ? '400px' : '500px'};
+    margin-bottom: ${props => props.mobile ? '200px' : ''};
     padding: 10px 0;
     font-size: 20px;
     border-radius: 10px;
@@ -99,7 +99,7 @@ const LoaderWrapper = styled.div`
 const RequestsNum = styled.span<{ reqs: boolean, ismobile: boolean }>`
     position: absolute;
     top: 10px;
-    right: ${props => props.ismobile ? '25px' : '48px'};
+    right: ${props => props.ismobile ? '25px' : '50px'};
     width: 10px;
     height: 10px;
     font-size: 8px;
@@ -185,7 +185,7 @@ const Friends: React.FC<PropsType> = ({ setModalActive, reqData, reqLoading, req
     return (
         <Modal onClick={() => setModalActive(false)}>
             <ModalContent
-                ismobile={isMobile}
+                mobile={isMobile}
                 onClick={(evt) => evt.stopPropagation()}>
                 <SelectTab>
                     <TabType

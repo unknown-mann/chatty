@@ -23,7 +23,7 @@ const Window = styled.div<{ active: boolean }>`
 
 const ChatContent = styled.div`
     width: 100%;
-    padding: 0 30px;
+    padding: 0 30px 10px 30px;
     @media (max-width: 768px) {
         padding: 0 15px 10px 15px;
     }
@@ -64,8 +64,6 @@ const TextArea = styled(motion.textarea).attrs({
 
 const SendButton = styled.button`
     width: 70px;
-    // align-self: flex-end;
-    // margin-right: 5%;
     margin-left: auto;
     margin-top: 5px;
     font-family: "HelveticaNeueCyr", Arial, sans-serif;
@@ -165,7 +163,7 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, setActive, mobile }) => {
         variables: {
             roomId: currentChat.id,
             pageNum: 0,
-            pageSize: 20
+            pageSize: 40
         }
     })
 
