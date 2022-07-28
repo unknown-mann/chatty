@@ -23,7 +23,7 @@ const Window = styled.div<{ active: boolean }>`
 
 const ChatContent = styled.div`
     width: 100%;
-    padding: 0 30px 10px 30px;
+    padding: 0 30px;
     @media (max-width: 768px) {
         padding: 0 15px 10px 15px;
     }
@@ -36,7 +36,7 @@ const TextWrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px 0;
+    padding-top: 10px;
     border-top: 1px solid #DADEE0;
     @media(max-width: 768px) {
         flex-direction: column;
