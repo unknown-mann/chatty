@@ -34,15 +34,19 @@ const ChatContent = styled.div`
 const TextWrapper = styled.div`
     width: 100%;
     display: flex;
-    justify-content: space-between;
-    padding: 20px 0;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
     border-top: 1px solid #DADEE0;
+    @media(max-width: 768px) {
+        flex-direction: column;
+    };
 `;
 
 const TextArea = styled(motion.textarea).attrs({
     placeholder: "Type here..",
 })`
-    width: 80%;
+    width: 100%;
     margin: 0 auto;
     padding: 10px;
     font-family: "HelveticaNeueCyr", Arial, sans-serif;
@@ -60,9 +64,10 @@ const TextArea = styled(motion.textarea).attrs({
 
 const SendButton = styled.button`
     width: 70px;
-    align-self: flex-end;
-    margin-right: 5%;
-    margin-top: 15px;
+    // align-self: flex-end;
+    // margin-right: 5%;
+    margin-left: auto;
+    margin-top: 5px;
     font-family: "HelveticaNeueCyr", Arial, sans-serif;
     font-size: 16px;
     color: white;
@@ -117,7 +122,7 @@ const MessageContent = styled.div`
     @media(max-width: 768px) {
         width: 400px;
     };
-    @media(max-width: 500px) {
+    @media(max-width: 550px) {
         width: 250px;
     };
     font-weight: 400;
@@ -248,13 +253,15 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, setActive, mobile }) => {
     }
 
     return (
-        <Window onClick={() => {mobile && setActive(false)}} active={Boolean(currentChat.id)}>
+        <Window onClick={() => { mobile && setActive(false) }} active={Boolean(currentChat.id)}>
             <ChatContent>
                 {messagesContent}
             </ChatContent>
             <TextWrapper>
-                <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
-                <SendButton disabled={!text} onClick={handleSendMessage}>Send</SendButton>
+                <div style={{width: '90%', display: 'flex', flexDirection: 'column'}}>
+                    <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
+                    <SendButton disabled={!text} onClick={handleSendMessage}>Send</SendButton>
+                </div>
             </TextWrapper>
         </Window>
     );

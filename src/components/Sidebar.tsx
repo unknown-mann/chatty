@@ -32,7 +32,7 @@ const TabType = styled.span<{ active: boolean }>`
 const TabContent = styled.div<{ active: boolean }>`
   display: ${props => props.active ? 'block' : 'none'};
   width: 100%;
-  height: 80%;
+  height: 90%;
   position: absolute;
   top: 60px;
   overflow: auto;
