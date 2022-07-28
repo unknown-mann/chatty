@@ -37,7 +37,7 @@ export const FRIEND_REQUESTS = gql`
 `;
 
 export const MESSAGE_BY_USER = gql`
-    query MessagesByUserId($userId: String, $pageNum: Int, $pageSize: Int) {
+    query MessagesByUserId($userId: Int, $pageNum: Int, $pageSize: Int) {
         messagesByUserId(userId: $userId, pageNum: $pageNum, pageSize: $pageSize) {
             id
             text
@@ -55,7 +55,7 @@ export const MESSAGE_BY_USER = gql`
 `;
 
 export const ADD_NEW_FRIEND = gql`
-    mutation AddFriend($userId: ID) {
+    mutation AddFriend($userId: Int) {
         addFriend(userId: $userId) {
             id
             email
@@ -66,7 +66,7 @@ export const ADD_NEW_FRIEND = gql`
 `;
 
 export const DELETE_FRIEND = gql`
-    mutation DeleteFriend($userId: ID) {
+    mutation DeleteFriend($userId: Int) {
         deleteFriend(userId: $userId) {
             id
             email
@@ -77,7 +77,7 @@ export const DELETE_FRIEND = gql`
 `;
 
 export const SEND_MESSAGE = gql`
-    mutation AddMessageToUser($message: MetaMessage, $userId: String ) {
+    mutation AddMessageToUser($message: MetaMessage, $userId: Int ) {
         addMessageToUser(message: $message, userId: $userId) {
             id
             text
@@ -105,7 +105,7 @@ export const SEARCH_USER = gql`
 
 
 export const ROOM = gql`
-    query RoomByUserId($userId: String) {
+    query RoomByUserId($userId: Int) {
         roomByUserId(userId: $userId) {
             id
             users {
@@ -142,11 +142,10 @@ export const MY_ROOMS = gql`
 `;
 
 export const MESSAGES_BY_ROOM = gql`
-    query MessagesByRoomId($roomId: String, $pageNum: Int, $pageSize: Int) {
+    query MessagesByRoomId($roomId: Int, $pageNum: Int, $pageSize: Int) {
         messagesByRoomId(roomId: $roomId, pageNum: $pageNum, pageSize: $pageSize) {
             id
             text
-            fileIds
             createdAt
             user {
                 id
@@ -167,7 +166,7 @@ export const MESSAGES_BY_ROOM = gql`
 `;
 
 export const SEND_MESSAGE_TO_ROOM = gql`
-    mutation AddMessageToRoom($message: MetaMessage, $roomId: String) {
+    mutation AddMessageToRoom($message: MetaMessage, $roomId: Int) {
         addMessageToRoom(message: $message, roomId: $roomId) {
             id
             text
@@ -182,13 +181,13 @@ export const SEND_MESSAGE_TO_ROOM = gql`
 `;
 
 export const SET_READ = gql`
-    mutation SetRead($roomId: String) {
+    mutation SetRead($roomId: Int) {
         setRead(roomId: $roomId)
     }
 `;
 
 export const ROOM_BY_ID = gql`
-    query RoomById($roomId: String) {
+    query RoomById($roomId: Int) {
         roomById(roomId: $roomId) {
             id
             users {

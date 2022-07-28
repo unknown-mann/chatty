@@ -6,7 +6,7 @@ export type StateType = {
 }
 
 export type UserType = {
-    id: string,
+    id: number,
     email: string,
     firstname: string,
     lastname: string,
@@ -14,8 +14,12 @@ export type UserType = {
     friends?: UserType[]
 }
 
+export type UserMeType = {
+    me: UserType
+}
+
 export interface IRequest {
-    id: string
+    id: number
     email: string
     firstname: string
     lastname: string
@@ -29,7 +33,7 @@ export interface IRequests {
 }
 
 export interface IFriend {
-    id: string
+    id: number
     email: string
     firstname: string
     lastname: string
@@ -45,7 +49,7 @@ export interface IRooms {
 }
 
 export interface IRoom {
-    id: string
+    id: number
     users: UserType[]
     isMultiChat: boolean
     lastMessage?: IMessage
@@ -53,18 +57,28 @@ export interface IRoom {
 }
 
 export interface IMessage {
-    id: string
+    id: number
     room: IRoom
     text: string
-    fileIds: string[]
+    files: MessageFile[] | undefined
     createdAt: string
     user: {
-        id: string
+        id: number
         email: string
         firstname: string
         lastname: string
         googleImgUrl: string
     }
+}
+
+export interface MessageFile {
+    id: number
+    googleFileId: string
+    contentType: string
+    fileName: string
+    senderId: string
+    status: string
+    fileType: string
 }
 
 export interface IMessagesByUserId {

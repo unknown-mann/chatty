@@ -1,7 +1,7 @@
 import SockJsClient from "react-stomp";
 import { ACCESS_TOKEN } from "../constants";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { setMessages, setRoom } from "../app/usersSlice";
+import { setMessages, setRoom } from "./usersSlice";
 import { ROOM_BY_ID, SET_READ } from "../apollo/requests";
 import { withApollo } from "@apollo/client/react/hoc";
 

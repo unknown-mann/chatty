@@ -3,11 +3,14 @@ import styled from 'styled-components';
 
 const Container = styled.main`
     width: 100%;
-    min-width: 1000px;
-    height: 90%;
-    display: flex;
-    font-family: Roboto, sans-serif;
-    border: 1px solid #DADEE0;
+    display: grid;
+    grid-template-columns: 320px 3fr;
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
 `;
 
 type PropsType = {

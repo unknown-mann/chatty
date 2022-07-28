@@ -2,6 +2,8 @@ import React from 'react';
 import styled from "styled-components";
 import { motion } from 'framer-motion';
 import { UserType } from '../types';
+import { ApolloError } from '@apollo/client';
+import { BeatLoader } from 'react-spinners';
 
 const Modal = styled.div`
     z-index: 1;
@@ -18,7 +20,6 @@ const Modal = styled.div`
 const ModalContent = styled(motion.div)`
     margin-top: 65px;
     margin-right: 20px;
-    font-family: Roboto, sans-serif;
     color: #475466;
     font-size: 16px;
     font-weight: 400;
@@ -53,13 +54,14 @@ const ModalField = styled.p`
 `;
 
 type PropsType = {
-    setModalActive: (arg: boolean) => void,
     userMe: {
         me: UserType
-    }
+    },
+    loading: boolean,
+    error: ApolloError | undefined
 }
 
-const ProfileModal: React.FC<PropsType> = ({ userMe, setModalActive }) => {
+const ProfileModal: React.FC<PropsType> = ({ userMe, loading, error }) => {
 
     const {
         firstname,
@@ -68,12 +70,15 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, setModalActive }) => {
         googleImgUrl
     } = userMe.me;
 
-    return (
-        <Modal onClick={() => setModalActive(false)}>
-            <ModalContent
-                initial={{ x: 150 }}
-                animate={{ x: 0 }}
-                onClick={(e) => e.stopPropagation()}>
+    let content
+
+    if (loading) {
+        content = <BeatLoader color="gray" />
+    } else if (error) {
+        content = <div>{error.message}</div>
+    } else if (userMe.me) {
+        content =
+            <>
                 <ModalTitle>
                     My profile
                     <Avatar src={googleImgUrl} />
@@ -87,6 +92,16 @@ const ProfileModal: React.FC<PropsType> = ({ userMe, setModalActive }) => {
                 <ModalField>
                     E-mail: {email}
                 </ModalField>
+            </>
+    }
+
+    return (
+        <Modal>
+            <ModalContent
+                initial={{ x: 150 }}
+                animate={{ x: -170 }}
+                onClick={(e) => e.stopPropagation()}>
+                {content}
             </ModalContent>
         </Modal>
     );

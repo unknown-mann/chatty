@@ -3,14 +3,14 @@ import { StateType } from "../types";
 
 const initialState: StateType = {
     activeChat: {
-        id: '',
+        id: 0,
         users: [],
         isMultiChat: false,
         unread: 0
     },
     messages: [],
     currentUser: {
-        id: '',
+        id: 0,
         email: '',
         firstname: '',
         lastname: '',

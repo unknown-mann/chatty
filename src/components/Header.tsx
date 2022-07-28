@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { IoPerson, IoLogOutOutline, IoPersonAdd } from "react-icons/io5"
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { ACCESS_TOKEN } from '../constants';
 import { useAppSelector } from '../hooks';
-import ProfileModal from './ProfileModal';
-import RequestsModal from './RequestsModal';
 import { IRequests, UserType } from '../types';
 import { useQuery } from '@apollo/client';
 import { FRIEND_REQUESTS } from '../apollo/requests';
+import { FaUserFriends } from "react-icons/fa"
+import { FiMoreVertical } from "react-icons/fi"
+import ControlsMenu from './ControlsMenu';
+import Modal from './Modal';
+import { BASE_AVATAR } from '../constants';
+import { FiMenu } from "react-icons/fi"
 
 const Wrapper = styled.div`
     border-bottom: 1px solid #DADEE0;
@@ -20,7 +20,7 @@ const HeaderEl = styled.header`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0 20px;
+    margin: 0 10px;
     font-weight: 500;
     color: #475466;
     font-size: 15px;
@@ -28,6 +28,8 @@ const HeaderEl = styled.header`
 `;
 
 const User = styled.div`
+    font-size: 18px;
+    font-weight: 400;
 `;
 
 const ButtonGroup = styled.div`
@@ -52,10 +54,19 @@ const Button = styled.button<{ active?: boolean }>`
     };
 `;
 
+const ShowButton = styled(Button)`
+    display: none;
+    @media (max-width: 768px) {
+        display: block;
+    }
+    margin-left: 0;
+    margin-right: 15px;
+`;
+
 const RequestsNum = styled.span<{ reqs: boolean }>`
     position: absolute;
-    top: 10px;
-    right: -2px;
+    top: 18px;
+    right: 1px;
     width: 10px;
     height: 10px;
     font-size: 8px;
@@ -68,138 +79,75 @@ const RequestsNum = styled.span<{ reqs: boolean }>`
 `;
 
 const Avatar = styled.img`
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
 `;
 
 type PropsType = {
     userMe: {
         me: UserType
-    }
+    },
+    active: boolean,
+    setActive: (arg: boolean) => void
 }
 
-const Header: React.FC<PropsType> = ({ userMe }) => {
+const Header: React.FC<PropsType> = ({ userMe, active, setActive }) => {
 
-    const [profileModalActive, setProfileModalActive] = useState(false)
-    const [requestsModalActive, setRequestsModalActive] = useState(false)
-
-    const navigate = useNavigate()
-
-    const { setIsAuth } = useAuth();
-
-    const logout = () => {
-        setIsAuth(false);
-        localStorage.removeItem(ACCESS_TOKEN)
-        navigate('/')
-    }
+    const [menuActive, setMenuActive] = useState(false)
+    const [modalActive, setModalActive] = useState(false)
 
     const currentChat = useAppSelector(state => state.users.activeChat)
     const currentUser = useAppSelector(state => state.users.currentUser)
 
-    const { data: reqData, loading: reqLoading, error: reqError } = useQuery<IRequests>(FRIEND_REQUESTS, {
+    const {
+        data: reqData,
+        loading: reqLoading,
+        error: reqError,
+        refetch: refetchReq
+    } = useQuery<IRequests>(FRIEND_REQUESTS, {
         variables: {
             pageNum: 0,
             pageSize: 10
-        }
+        },
+        notifyOnNetworkStatusChange: true
     })
 
     const reqLength = reqData?.friendRequests.length
 
+    const userAvatar = currentChat.users.find(user => user.id !== currentUser.id)?.googleImgUrl;
+    const userName = currentChat.users.find(user => user.id !== currentUser.id)?.firstname;
+    const userSurname = currentChat.users.find(user => user.id !== currentUser.id)?.lastname;
+
     return (
         <Wrapper>
             <HeaderEl>
-                {currentChat.id && <Avatar src={currentChat.users.find(user => user.id !== currentUser.id)?.googleImgUrl} />}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {!active && <ShowButton onClick={() => setActive(!active)}>
+                        <FiMenu size="20px" />
+                    </ShowButton>}
+                    <Avatar src={userAvatar || BASE_AVATAR} />
+                </div>
                 <User>
-                    {currentChat.users.find(user => user.id !== currentUser.id)?.firstname} {' '} {currentChat.users.find(user => user.id !== currentUser.id)?.lastname}
+                    {userName} {' '} {userSurname}
                 </User>
                 <ButtonGroup>
-                    <Button onClick={() => setRequestsModalActive(true)} active={requestsModalActive}>
-                        <IoPersonAdd size="20px" />
+                    <Button onClick={() => setModalActive(true)}>
                         {!reqLoading &&
                             <RequestsNum reqs={Boolean(reqLength)}>
                                 {reqLength}
                             </RequestsNum>}
+                        <FaUserFriends size="25px" />
                     </Button>
-                    <Button onClick={() => setProfileModalActive(true)} active={profileModalActive}>
-                        <IoPerson size="20px" />
-                    </Button>
-                    <Button onClick={() => logout()}>
-                        <IoLogOutOutline size="25px" />
+                    <Button onClick={() => setMenuActive(true)}>
+                        <FiMoreVertical size="25px" />
                     </Button>
                 </ButtonGroup>
             </HeaderEl>
-            {profileModalActive &&
-                <ProfileModal userMe={userMe} setModalActive={setProfileModalActive} />}
-            {requestsModalActive && reqData &&
-                <RequestsModal setModalActive={setRequestsModalActive} reqData={reqData} reqLoading={reqLoading} reqError={reqError} />}
+            {menuActive && <ControlsMenu reqData={reqData} setMenuActive={setMenuActive} />}
+            {modalActive && <Modal setModalActive={setModalActive} reqData={reqData} reqLoading={reqLoading} reqError={reqError} refetchReq={refetchReq} reqLength={reqLength} />}
         </Wrapper>
     );
 };
 
 export default Header;
-
-// const Header: React.FC<PropsType> = ({ userMe }) => {
-
-//     const [profileModalActive, setProfileModalActive] = useState(false)
-//     const [requestsModalActive, setRequestsModalActive] = useState(false)
-
-//     const navigate = useNavigate()
-
-//     const { setIsAuth } = useAuth();
-
-//     const logout = () => {
-//         setIsAuth(false);
-//         localStorage.removeItem(ACCESS_TOKEN)
-//         navigate('/')
-//     }
-
-//     const currentChat = useAppSelector(state => state.users.activeChat)
-//     const currentUser = useAppSelector(state => state.users.currentUser)
-
-//     const { data: reqData, loading: reqLoading, error: reqError } = useQuery<IRequests>(FRIEND_REQUESTS, {
-//         variables: {
-//             pageNum: 0,
-//             pageSize: 10
-//         }
-//     })
-
-//     const reqLength = reqData?.friendRequests.length
-
-//     const userAvatar = currentChat.users.find(user => user.id !== currentUser.id)?.googleImgUrl;
-//     const userName = currentChat.users.find(user => user.id !== currentUser.id)?.firstname;
-//     const userSurname = currentChat.users.find(user => user.id !== currentUser.id)?.lastname
-    
-
-//     return (
-//         <Wrapper>
-//             <HeaderEl>
-//                 {currentChat.id && <Avatar src={userAvatar} />}
-//                 <User>
-//                 {userName} {' '} {userSurname}
-//                 </User>
-//                 <ButtonGroup>
-//                     <Button onClick={() => setRequestsModalActive(true)} active={requestsModalActive}>
-//                         <IoPersonAdd size="20px" />
-//                         {!reqLoading &&
-//                             <RequestsNum reqs={Boolean(reqLength)}>
-//                                 {reqLength}
-//                             </RequestsNum>}
-//                     </Button>
-//                     <Button onClick={() => setProfileModalActive(true)} active={profileModalActive}>
-//                         <IoPerson size="20px" />
-//                     </Button>
-//                     <Button onClick={() => logout()}>
-//                         <IoLogOutOutline size="25px" />
-//                     </Button>
-//                 </ButtonGroup>
-//             </HeaderEl>
-//             {profileModalActive &&
-//                 <ProfileModal userMe={userMe} setModalActive={setProfileModalActive} />}
-//             {requestsModalActive && reqData &&
-//                 <RequestsModal setModalActive={setRequestsModalActive} reqData={reqData} reqLoading={reqLoading} reqError={reqError} />}
-//         </Wrapper>
-//     );
-// };
-
-// export default Header;

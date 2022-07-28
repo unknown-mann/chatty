@@ -1,3 +1,31 @@
+@font-face {
+  font-family: "HelveticaNeueCyr";
+  src: local("HelveticaNeueCyr-Bold"),
+    url("../public/fonts/HelveticaNeueCyr-Bold.woff2") format("woff"),
+    url("../public/fonts/HelveticaNeueCyr-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "HelveticaNeueCyr";
+  src: local("HelveticaNeueCyr-Medium"),
+    url("../public/fonts/HelveticaNeueCyr-Medium.woff2") format("woff2"),
+    url("../public/fonts/HelveticaNeueCyr-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "HelveticaNeueCyr";
+  src: local("HelveticaNeueCyr-Roman"),
+    url("../public/fonts/HelveticaNeueCyr-Roman.woff2") format("woff2"),
+    url("../public/fonts/HelveticaNeueCyr-Roman.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 :root {
   --spinner-color: #dbdbdb;
 }
@@ -6,6 +34,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+body {
+  font-family: "HelveticaNeueCyr", Arial, sans-serif;
 }
 
 textarea::placeholder {
@@ -99,10 +131,10 @@ textarea::placeholder {
   }
 }
 
-.non-acive {
-  display: none;
+.show {
+  display: block;
 }
 
-.active {
-  display: block;
+.hide {
+  display: none;
 }

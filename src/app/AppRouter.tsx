@@ -1,9 +1,9 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import Chat from "../components/Chat";
-import Login from "../components/Login";
-import Redirect from "../components/Redirect";
+import Chat from "../pages/Chat";
+import Login from "../pages/Login";
+import Redirect from "../pages/Redirect";
 
 export const AppRouter = () => {
 

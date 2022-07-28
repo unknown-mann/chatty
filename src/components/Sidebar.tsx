@@ -1,24 +1,18 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { useAppDispatch, useAppSelector } from "../hooks";
-import { setCurrentChat, setRoom, setRooms } from "../app/usersSlice";
-import { IoSearchOutline, IoCloseOutline } from "react-icons/io5";
-import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
-import { ADD_NEW_FRIEND, DELETE_FRIEND, MY_ROOMS, ROOM, SEARCH_USER } from "../apollo/requests";
-import { IRooms, IUsers, UserType, IRoom } from "../types";
-import { IoAdd, IoClose } from 'react-icons/io5';
-import { BeatLoader } from "react-spinners";
-import useDebounce from "../hooks/useDebounce";
-import { withApollo } from '@apollo/client/react/hoc';
+import Rooms from "./Rooms";
+import Friends from "./Friends";
 
-const Wrapper = styled.aside`
-  position: relative;
-  width: 22%;
+const Wrapper = styled.aside<{mobile: boolean}>`
+  position: ${props => props.mobile ? 'absolute' : 'relative'};
+  width: ${props => props.mobile ? '300px' : ''};
+  height: 100%;
   background-color: #f2f2f2;
   border-right: 1px solid #dadee0;
 `;
 
 const SelectTab = styled.div`
+  height: 61px;
   display: flex;
   justify-content: space-between;
 `;
@@ -26,7 +20,7 @@ const SelectTab = styled.div`
 const TabType = styled.span<{ active: boolean }>`
   display: inline-block;
   width: 50%;
-  padding: 20px;
+  padding: 25px;
   font-size: 16px;
   font-weight: 500;
   color: ${props => props.active ? '#0b829e' : '#1ca1c1'};
@@ -44,491 +38,31 @@ const TabContent = styled.div<{ active: boolean }>`
   overflow: auto;
 `;
 
-const SearchWrapper = styled.div`
-  position: relative;
-  padding: 15px;
-  padding-bottom: 0;
-`;
-
-const Search = styled.input.attrs({
-  type: "text",
-  placeholder: "Search",
-})`
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  background-color: #f2f2f2;
-  border: 1px solid #dadee0;
-  border-radius: 5px;
-  :focus {
-    outline: none !important;
-    border-color: #1ca1c1;
-    background-color: white;
-  }
-`;
-
-const Icon = styled.span`
-  position: absolute;
-  right: 30px;
-  color: #94a1b3;
-`;
-
-const SearchIcon = styled(Icon)`
-  top: 25px;
-`;
-
-const ClearIcon = styled(Icon)`
-  top: 24px;
-  cursor: pointer;
-`;
-
-const UsersList = styled.ul`
-  margin-top: 10px;
-  font-size: 14px;
-  font-weight: 400;
-  color: #475466;
-`;
-
-const UserItem = styled.li`
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  :hover {
-    background: rgba(206, 237, 245, 0.6);
-  }
-`;
-
-const FriendItem = styled(UserItem) <{ active?: boolean }>`
-  background: ${(props) => (props.active ? "rgb(206, 237, 245)" : "")};
-`;
-
-const Avatar = styled.img`
-  width: 35px;
-  height: 35px;
-  margin-right: 20px;
-  border-radius: 50%;
-  cursor: pointer;
-`;
-
-const Button = styled.button`
-    width: 20px;
-    height: 20px;
-    margin-left: auto;
-    background: none;
-    border: none;
-    cursor: pointer;
-    :active {
-        opacity: 0.6;
-    }
-`;
-
-const LoaderWrapper = styled.div`
-  height: 100%; 
-  display: flex; 
-  justify-content: center; 
-  margin-top: 100px;
-`;
-
-const NotFound = styled.div`
-    padding: 20px;
-`;
-
-const Sidebar: React.FC<any> = React.memo(({ client }) => {
-
-  const currentUser = useAppSelector(state => state.users.currentUser)
-  const myRooms = useAppSelector(state => state.users.rooms)
-
-  const dispatch = useAppDispatch();
+const Sidebar: React.FC<{ active: boolean, mobile: boolean }> = React.memo(({ active, mobile }) => {
 
   const [activeTab, setActiveTab] = useState(2)
 
   const toggleTab = (index: number) => setActiveTab(index)
 
-  const [searchValue, setSearchValue] = useState("");
-  const debouncedValue = useDebounce<string>(searchValue, 500)
-
-  const [loadUsers, { data: users, loading: usersLoading, error: usersError, refetch }] = useLazyQuery<IUsers>(SEARCH_USER, {
-    variables: {
-      search: '',
-      pageNum: 0,
-      pageSize: 10
-    },
-    notifyOnNetworkStatusChange: true
-  })
-
-  const handleSearch = (evt: ChangeEvent<HTMLInputElement>) => setSearchValue(evt.target.value)
-
-  useEffect(() => {
-    refetch({
-      search: searchValue,
-      pageNum: 0,
-      pageSize: 10
-    })
-  }, [debouncedValue])
-
-  const { data: rooms, loading: roomsLoading, error: roomsError, refetch: refetchRooms } = useQuery<IRooms>(MY_ROOMS, {
-    variables: {
-      pageNum: 0,
-      pageSize: 10
-    }
-  });
-
-  if (!roomsLoading && !myRooms.length) {
-    dispatch(setRooms(rooms?.myRooms))
-  }
-
-
-  const [activeChat, setActiveChat] = useState("");
-
-  const [addFriend] = useMutation(ADD_NEW_FRIEND)
-
-  const [deleteFriend] = useMutation(DELETE_FRIEND)
-
-  const handleDelete = async (id: string | undefined) => {
-    // eslint-disable-next-line no-restricted-globals
-    const result = confirm('Delete friend?')
-    if (result) {
-      await deleteFriend({
-        variables: {
-          userId: id
-        },
-        onCompleted: (data) => console.log(data)
-      })
-      refetchRooms({
-        pageNum: 0,
-        pageSize: 10
-      })
-    }
-  }
-
-  let roomsList
-
-  if (roomsLoading) {
-    roomsList =
-      <LoaderWrapper>
-        <BeatLoader color="gray" />
-      </LoaderWrapper>
-  } else if (roomsError) {
-    roomsList = roomsError.message
-  } else if (myRooms) {
-    myRooms.length ?
-      roomsList =
-      <UsersList>
-        {myRooms.map((room) => (
-          <FriendItem
-            key={room.id}
-            onClick={() => {
-              setActiveChat(room.id);
-              dispatch(setCurrentChat(room))
-              const newRoom = Object.assign({}, room)
-              newRoom.unread = 0
-              dispatch(setRoom(newRoom))
-            }}
-            active={activeChat === room.id}
-          >
-            <Avatar src={room.users.find(user => {
-              return user.id !== currentUser.id
-            })?.googleImgUrl} />
-            {room.users.find(user => user.id !== currentUser.id)?.firstname} {room.users.find(user => user.id !== currentUser.id)?.lastname}
-            <br />
-            {room.lastMessage && room.lastMessage.text}
-            <br />
-            {room.unread}
-            <Button onClick={() => handleDelete(room.users.find(user => user.id !== currentUser.id)?.id)}>
-              <IoClose size="20px" />
-            </Button>
-          </FriendItem>
-        ))}
-      </UsersList>
-      :
-      <NotFound>No active chats</NotFound>
-  }
-
-  let usersList
-
-  if (usersLoading) {
-    usersList =
-      <LoaderWrapper>
-        <BeatLoader color="gray" />
-      </LoaderWrapper>
-  } else if (usersError) {
-    usersList = <div>{usersError.message}</div>
-  } else if (users?.usersBySearch) {
-    usersList =
-      users.usersBySearch.length ?
-        <UsersList>
-          {!usersLoading && users &&
-            users.usersBySearch.map(user => (
-              <UserItem key={user.googleImgUrl}>
-                <Avatar
-                  onClick={async () => {
-                    const { data } = await client.query({
-                      query: ROOM,
-                      variables: { userId: user.id }
-                    });
-                    dispatch(setCurrentChat(data.roomByUserId))
-                  }}
-                  src={user.googleImgUrl} />
-                {user.firstname} {user.lastname}
-                <Button
-                  onClick={() => addFriend({
-                    variables: {
-                      userId: user.id
-                    }
-                  })}
-                >
-                  <IoAdd size="20px" />
-                </Button>
-              </UserItem>
-            ))}
-        </UsersList>
-        :
-        <NotFound>No users found</NotFound>
-  }
-
   return (
-    <Wrapper>
+    <Wrapper mobile={mobile} className={active ? "show" : "hide"}>
       <SelectTab>
         <>
-          <TabType active={activeTab === 1} onClick={() => { toggleTab(1); loadUsers() }}>Users</TabType>
+          <TabType active={activeTab === 1} onClick={() => { toggleTab(1) }}>FRIENDS</TabType>
           <TabContent active={activeTab === 1}>
-            <SearchWrapper>
-              <Search
-                value={searchValue}
-                onChange={handleSearch}
-              />
-              {searchValue ? (
-                <ClearIcon>
-                  <IoCloseOutline onClick={() => { setSearchValue(""); refetch({ search: '', pageNum: 0, pageSize: 10 }) }} size="20px" />
-                </ClearIcon>
-              ) : (
-                <SearchIcon>
-                  <IoSearchOutline size="17px" />
-                </SearchIcon>
-              )}
-            </SearchWrapper>
-            {activeTab === 1 && usersList}
+            {activeTab === 1 && <Friends />}
           </TabContent>
         </>
         <>
-          <TabType active={activeTab === 2} onClick={() => toggleTab(2)}>Chats</TabType>
+          <TabType active={activeTab === 2} onClick={() => toggleTab(2)}>CHATS</TabType>
           <TabContent active={activeTab === 2}>
-            {roomsList}
+            <Rooms />
           </TabContent>
         </>
       </SelectTab>
     </Wrapper>
-  );
+  )
+
 });
 
-export default withApollo(Sidebar);
-
-
-// const Sidebar: React.FC<any> = React.memo(({ client }) => {
-
-//   const currentUser = useAppSelector(state => state.users.currentUser)
-//   const myRooms = useAppSelector(state => state.users.rooms)
-
-//   const dispatch = useAppDispatch();
-
-//   const [activeTab, setActiveTab] = useState(2)
-
-//   const toggleTab = (index: number) => setActiveTab(index)
-
-//   const [searchValue, setSearchValue] = useState("");
-//   const debouncedValue = useDebounce<string>(searchValue, 500)
-
-//   const [
-//     loadUsers,
-//     {
-//       data: users,
-//       loading: usersLoading,
-//       error: usersError,
-//       refetch
-//     }] = useLazyQuery<IUsers>(SEARCH_USER, {
-//       variables: {
-//         search: '',
-//         pageNum: 0,
-//         pageSize: 10
-//       },
-//       notifyOnNetworkStatusChange: true
-//     })
-
-//   const handleSearch = (evt: ChangeEvent<HTMLInputElement>) => setSearchValue(evt.target.value)
-
-//   useEffect(() => {
-//     refetch({
-//       search: searchValue,
-//       pageNum: 0,
-//       pageSize: 10
-//     })
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [debouncedValue])
-
-//   const {
-//     data: rooms,
-//     loading: roomsLoading,
-//     error: roomsError,
-//     refetch: refetchRooms
-//   } = useQuery<IRooms>(MY_ROOMS, {
-//     variables: {
-//       pageNum: 0,
-//       pageSize: 10
-//     }
-//   });
-
-//   if (!roomsLoading && !myRooms.length) {
-//     dispatch(setRooms(rooms?.myRooms))
-//   }
-
-//   const [activeChat, setActiveChat] = useState("");
-
-//   const [addFriend] = useMutation(ADD_NEW_FRIEND)
-
-//   const [deleteFriend] = useMutation(DELETE_FRIEND)
-
-//   const handleDelete = async (id: string | undefined) => {
-//     // eslint-disable-next-line no-restricted-globals
-//     const result = confirm('Delete friend?')
-//     if (result) {
-//       await deleteFriend({
-//         variables: {
-//           userId: id
-//         }
-//       })
-//       refetchRooms({
-//         pageNum: 0,
-//         pageSize: 10
-//       })
-//     }
-//   }
-
-//   const handleSetActiveChat = (room: IRoom) => {
-//     setActiveChat(room.id);
-//     dispatch(setCurrentChat(room))
-//     const newRoom = Object.assign({}, room)
-//     newRoom.unread = 0
-//     dispatch(setRoom(newRoom))
-//   }
-
-//   const getUserAvatar = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.googleImgUrl
-//   const getUserFirstname = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.firstname
-//   const getUserLastname = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.lastname
-
-//   let roomsList
-
-//   if (roomsLoading) {
-//     roomsList =
-//       <LoaderWrapper>
-//         <BeatLoader color="gray" />
-//       </LoaderWrapper>
-//   } else if (roomsError) {
-//     roomsList = roomsError.message
-//   } else if (myRooms) {
-//     myRooms.length ?
-//       roomsList =
-//       <UsersList>
-//         {myRooms.map((room) => (
-//           <FriendItem
-//             key={room.id}
-//             onClick={() => handleSetActiveChat(room)}
-//             active={activeChat === room.id}
-//           >
-//             <Avatar src={getUserAvatar(room)} />
-//             {getUserFirstname(room)}
-//             {getUserLastname(room)}
-//             <br />
-//             {room.lastMessage && room.lastMessage.text}
-//             <br />
-//             {room.unread}
-//             <Button onClick={() => handleDelete(room.users.find(user => user.id !== currentUser.id)?.id)}>
-//               <IoClose size="20px" />
-//             </Button>
-//           </FriendItem>
-//         ))}
-//       </UsersList>
-//       :
-//       <NotFound>No active chats</NotFound>
-//   }
-
-//   const handleSetNewChat = async (user: UserType) => {
-//     const { data } = await client.query({
-//       query: ROOM,
-//       variables: { userId: user.id }
-//     });
-//     dispatch(setCurrentChat(data.roomByUserId))
-//   }
-
-//   let usersList
-
-//   if (usersLoading) {
-//     usersList =
-//       <LoaderWrapper>
-//         <BeatLoader color="gray" />
-//       </LoaderWrapper>
-//   } else if (usersError) {
-//     usersList = <div>{usersError.message}</div>
-//   } else if (users?.usersBySearch) {
-//     usersList =
-//       users.usersBySearch.length ?
-//         <UsersList>
-//           {!usersLoading && users &&
-//             users.usersBySearch.map(user => (
-//               <UserItem
-//                 key={user.googleImgUrl}
-//                 onClick={() => handleSetNewChat(user)}
-//               >
-//                 <Avatar src={user.googleImgUrl} />
-//                 {user.firstname} {user.lastname}
-//                 <Button
-//                   onClick={() => addFriend({
-//                     variables: {
-//                       userId: user.id
-//                     }
-//                   })}
-//                 >
-//                   <IoAdd size="20px" />
-//                 </Button>
-//               </UserItem>
-//             ))}
-//         </UsersList>
-//         :
-//         <NotFound>No users found</NotFound>
-//   }
-
-//   return (
-//     <Wrapper>
-//       <SelectTab>
-//         <>
-//           <TabType active={activeTab === 1} onClick={() => { toggleTab(1); loadUsers() }}>Users</TabType>
-//           <TabContent active={activeTab === 1}>
-//             <SearchWrapper>
-//               <Search
-//                 value={searchValue}
-//                 onChange={handleSearch}
-//               />
-//               {searchValue ? (
-//                 <ClearIcon>
-//                   <IoCloseOutline onClick={() => { setSearchValue(""); refetch({ search: '', pageNum: 0, pageSize: 10 }) }} size="20px" />
-//                 </ClearIcon>
-//               ) : (
-//                 <SearchIcon>
-//                   <IoSearchOutline size="17px" />
-//                 </SearchIcon>
-//               )}
-//             </SearchWrapper>
-//             {activeTab === 1 && usersList}
-//           </TabContent>
-//         </>
-//         <>
-//           <TabType active={activeTab === 2} onClick={() => toggleTab(2)}>Chats</TabType>
-//           <TabContent active={activeTab === 2}>
-//             {roomsList}
-//           </TabContent>
-//         </>
-//       </SelectTab>
-//     </Wrapper>
-//   );
-// });
-
-// export default withApollo(Sidebar);
+export default Sidebar;
