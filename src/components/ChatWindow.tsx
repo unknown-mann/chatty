@@ -22,7 +22,11 @@ const Window = styled.div<{ active: boolean }>`
 `;
 
 const ChatContent = styled.div`
+    width: 100%;
     padding: 0 30px 10px 30px;
+    @media (max-width: 768px) {
+        padding: 0 15px 10px 15px;
+    }
     margin-top: auto;
     overflow: auto;
 `;
@@ -111,11 +115,14 @@ const MessageSender = styled.div`
 const MessageContent = styled.div`
     width: 80%;
     @media(max-width: 768px) {
-        width: 300px;
+        width: 400px;
+    };
+    @media(max-width: 500px) {
+        width: 250px;
     };
     font-weight: 400;
     overflow: hidden;
-    white-space: wrap;
+    white-space: pre-wrap;
     color: #475466;
 `;
 
