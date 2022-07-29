@@ -138,3 +138,13 @@ textarea::placeholder {
 .hide {
   display: none;
 }
+
+.hidden {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  line-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}

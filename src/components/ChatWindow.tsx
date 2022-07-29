@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { motion } from 'framer-motion';
@@ -7,6 +7,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { MESSAGES_BY_ROOM, SEND_MESSAGE_TO_ROOM } from '../apollo/requests'
 import { setMessages, setRoom } from '../app/usersSlice';
 import { BeatLoader } from "react-spinners";
+import { IoIosAttach } from "react-icons/io"
 
 const Avatar = styled.img`
     width: 35px;
@@ -84,6 +85,26 @@ const SendButton = styled.button`
         background: #f4f5f9;
         cursor: not-allowed;
     }
+`;
+
+const PickButton = styled.button`
+    margin-right: 10px;
+    padding: 5px;
+    background: none; 
+    border: none;
+    cursor: pointer;
+    :hover {
+        opacity: 0.8;
+    };
+    :active {
+        opacity: 0.6;
+    }
+`;
+
+const FileContent = styled.div`
+    margin-left: 60px;
+    font-size: 14px;
+    color: gray;
 `;
 
 const MessagesList = styled.ul`
@@ -249,15 +270,43 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, setActive, mobile }) => {
         dispatch(setRoom(copyChat))
     }
 
+    const filePicker = useRef(null)
+
+    const handlePick = () => {
+        if (filePicker.current) {
+            //@ts-ignore
+            filePicker.current.click()
+        }
+    }
+
+    const [file, setFile] = useState<FileList | null>()
+
+    const handleSetFile = (evt: ChangeEvent<HTMLInputElement>) => {
+        //@ts-ignore
+        setFile(evt.target.files[0].name)
+    }
+
+
     return (
         <Window onClick={() => { mobile && setActive(false) }} active={Boolean(currentChat.id)}>
             <ChatContent>
                 {messagesContent}
             </ChatContent>
             <TextWrapper>
+                <PickButton onClick={handlePick}>
+                    <IoIosAttach size="25px" color='gray' />
+                </PickButton>
+                <input 
+                onChange={handleSetFile} 
+                type="file" className='hidden' 
+                ref={filePicker}
+                accept="image/*,.png,.jpg,.gif,.web" />
                 <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
                 <SendButton disabled={!text} onClick={handleSendMessage}>Send</SendButton>
             </TextWrapper>
+            {file &&
+                <FileContent>{file as unknown as string}</FileContent>
+            }
         </Window>
     );
 };
