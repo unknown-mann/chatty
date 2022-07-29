@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import useDebounce from '../hooks/useDebounce';
 import { IUsers } from '../types';
 import { setUsersBySearch } from '../app/usersSlice';
+import { MdOutlinePersonSearch } from 'react-icons/md';
 
 const LoaderWrapper = styled.div`
     height: 80%;
@@ -68,10 +69,6 @@ const Button = styled(motion.button)`
     }
 `;
 
-const NotFound = styled.div`
-    padding: 20px;
-`;
-
 const SearchWrapper = styled.div`
   position: sticky;
   padding: 15px;
@@ -108,6 +105,13 @@ const SearchIcon = styled(Icon)`
 const ClearIcon = styled(Icon)`
   top: 24px;
   cursor: pointer;
+`;
+
+const Blank = styled.div`
+    height: 55%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
 
 const Users: React.FC = () => {
@@ -152,14 +156,22 @@ const Users: React.FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedValue])
 
-    const [addFriend, {loading}] = useMutation(ADD_NEW_FRIEND, {
+    const [addFriend, { loading }] = useMutation(ADD_NEW_FRIEND, {
         refetchQueries: [
-            { query: MY_FRIENDS },
+            {
+                query: MY_FRIENDS, variables: {
+                    pageNum: 0,
+                    pageSize: 10
+                }
+            },
             'MyFriends'
         ]
     })
 
-    let usersList
+    let usersList =
+        <Blank>
+            <MdOutlinePersonSearch color="lightgray" size="150px" />
+        </Blank>
 
     if (usersLoading) {
         usersList =
@@ -190,13 +202,15 @@ const Users: React.FC = () => {
                                     whileHover={{ scale: 1.2 }}
                                     transition={{ type: 'ease' }}
                                 >
-                                    <IoPersonAddOutline size="20px" />
+                                    <IoPersonAddOutline color="black" size="20px" />
                                 </Button>
                             </UserItem>
                         ))}
                 </UsersList>
                 :
-                <NotFound>No users found</NotFound>
+                <Blank>
+                    User not found
+                </Blank>
     }
     return (
         <>

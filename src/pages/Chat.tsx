@@ -59,7 +59,7 @@ const Chat = () => {
         dispatch(setCurrentUser(userMe?.me))
     }
 
-    const [active, setActive] = useState<boolean>(true)
+    const [active, setActive] = useState(true)
     const [mobile, setMobile] = useState(false)
 
     //@ts-ignore
@@ -92,7 +92,7 @@ const Chat = () => {
             <>
                 <Container>
                     <Main>
-                        <Sidebar mobile={mobile} active={active} />
+                        <Sidebar mobile={mobile} active={active} setActive={setActive} />
                         <Wrapper>
                             <Header active={active} setActive={setActive} userMe={userMe} />
                             {currentChat.id ?

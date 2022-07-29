@@ -9,7 +9,6 @@ import { IoPersonRemoveOutline } from 'react-icons/io5';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { setCurrentChat } from '../app/usersSlice';
 import { withApollo } from '@apollo/client/react/hoc';
-import { SiZeromq } from "react-icons/si"
 import { setFriends } from '../app/usersSlice';
 
 
@@ -77,6 +76,7 @@ const Empty = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 20px;
 `;
 
 const Friends: React.FC<any> = ({ client }) => {
@@ -162,7 +162,7 @@ const Friends: React.FC<any> = ({ client }) => {
                 ))
                 :
                 <Empty>
-                    <SiZeromq color="lightgray" size="100px" />
+                    No friends yet
                 </Empty>
     }
 

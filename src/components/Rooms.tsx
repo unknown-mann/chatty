@@ -6,7 +6,6 @@ import { removeMessages, setCurrentChat, setRoom, setRooms } from "../app/usersS
 import { IRoom, IRooms } from '../types';
 import { useMutation, useQuery } from '@apollo/client';
 import { MY_ROOMS } from '../apollo/requests';
-import { SiZeromq } from 'react-icons/si';
 import { DELETE_ROOM } from '../apollo/requests';
 import { IoCloseOutline } from 'react-icons/io5';
 import { motion } from 'framer-motion';
@@ -50,6 +49,7 @@ const Empty = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 20px;
 `;
 
 const NumUnreadMsg = styled.div`
@@ -76,8 +76,8 @@ const UnreadMsg = styled.div`
 
 const Button = styled(motion.button)`
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 2px;
+    right: 2px;
     width: 20px;
     height: 20px;
     background: none;
@@ -88,7 +88,12 @@ const Button = styled(motion.button)`
     }
 `;
 
-const Rooms = () => {
+type PropsType = {
+    mobile: boolean,
+    setActive: (arg: boolean) => void
+}
+
+const Rooms: React.FC<PropsType> = ({ mobile, setActive }) => {
 
     const dispatch = useAppDispatch();
 
@@ -140,6 +145,9 @@ const Rooms = () => {
         const newRoom = Object.assign({}, room)
         newRoom.unread = 0
         dispatch(setRoom(newRoom))
+        if (mobile) {
+            setActive(false)
+        }
     }
 
     const getUserAvatar = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.googleImgUrl
@@ -188,7 +196,7 @@ const Rooms = () => {
                 </UsersList>
                 :
                 <Empty>
-                    <SiZeromq color="lightgray" size="100px" />
+                    No chats yet
                 </Empty>
     }
 

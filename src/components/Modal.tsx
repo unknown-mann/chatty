@@ -4,10 +4,9 @@ import styled from 'styled-components';
 import { ApolloError, ApolloQueryResult, OperationVariables, useMutation } from '@apollo/client';
 import { ADD_NEW_FRIEND, FRIEND_REQUESTS, MY_FRIENDS } from '../apollo/requests';
 import { IRequests } from '../types';
-import { IoAdd } from 'react-icons/io5';
+import { IoAdd, IoPerson } from 'react-icons/io5';
 import { BeatLoader } from 'react-spinners';
 import Users from './Users';
-import { SiZeromq } from "react-icons/si"
 import { useMatchMedia } from '../hooks/useMatchMedia';
 
 const Modal = styled(motion.div)`
@@ -23,7 +22,7 @@ const Modal = styled(motion.div)`
     background: rgba(0, 0, 0, 0.5);
 `;
 
-const ModalContent = styled(motion.div)<{mobile: boolean}>`
+const ModalContent = styled(motion.div) <{ mobile: boolean }>`
     width: ${props => props.mobile ? '300px' : '400px'};
     height: ${props => props.mobile ? '400px' : '500px'};
     margin-bottom: ${props => props.mobile ? '200px' : ''};
@@ -96,10 +95,10 @@ const LoaderWrapper = styled.div`
     align-items: center;
 `;
 
-const RequestsNum = styled.span<{ reqs: boolean, ismobile: boolean }>`
+const RequestsNum = styled.span<{ reqs: boolean, mobile: boolean }>`
     position: absolute;
     top: 10px;
-    right: ${props => props.ismobile ? '25px' : '50px'};
+    right: ${props => props.mobile ? '25px' : '50px'};
     width: 10px;
     height: 10px;
     font-size: 8px;
@@ -139,8 +138,18 @@ const Friends: React.FC<PropsType> = ({ setModalActive, reqData, reqLoading, req
 
     const [addFriend, { loading }] = useMutation(ADD_NEW_FRIEND, {
         refetchQueries: [
-            { query: FRIEND_REQUESTS },
-            { query: MY_FRIENDS },
+            {
+                query: FRIEND_REQUESTS, variables: {
+                    pageNum: 0,
+                    pageSize: 10
+                }
+            },
+            {
+                query: MY_FRIENDS, variables: {
+                    pageNum: 0,
+                    pageSize: 10
+                }
+            },
             'FriendRequests',
             'MyFriends'
         ]
@@ -177,7 +186,7 @@ const Friends: React.FC<PropsType> = ({ setModalActive, reqData, reqLoading, req
                 ))
                 :
                 <Empty>
-                    <SiZeromq color="lightgray" size="100px" />
+                    <IoPerson color="lightgray" size="120px" />
                 </Empty>
 
     }
@@ -199,7 +208,7 @@ const Friends: React.FC<PropsType> = ({ setModalActive, reqData, reqLoading, req
                         onClick={() => toggleTab(2)}
                     >
                         REQUESTS
-                        {!reqLoading && <RequestsNum reqs={Boolean(reqLength)} ismobile={isMobile}>
+                        {!reqLoading && <RequestsNum reqs={Boolean(reqLength)} mobile={isMobile}>
                             {reqLength}
                         </RequestsNum>}
                     </TabType>

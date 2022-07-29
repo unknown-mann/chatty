@@ -124,7 +124,7 @@ const Header: React.FC<PropsType> = ({ userMe, active, setActive }) => {
             <HeaderEl>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     {!active && <ShowButton onClick={() => setActive(!active)}>
-                        <FiMenu size="20px" />
+                        <FiMenu color="black" size="20px" />
                     </ShowButton>}
                     <Avatar src={userAvatar || BASE_AVATAR} />
                 </div>
@@ -137,10 +137,10 @@ const Header: React.FC<PropsType> = ({ userMe, active, setActive }) => {
                             <RequestsNum reqs={Boolean(reqLength)}>
                                 {reqLength}
                             </RequestsNum>}
-                        <FaUserFriends size="25px" />
+                        <FaUserFriends color="black" size="25px" />
                     </Button>
                     <Button onClick={() => setMenuActive(true)}>
-                        <FiMoreVertical size="25px" />
+                        <FiMoreVertical color="black" size="25px" />
                     </Button>
                 </ButtonGroup>
             </HeaderEl>

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Rooms from "./Rooms";
 import Friends from "./Friends";
 
-const Wrapper = styled.aside<{mobile: boolean}>`
+const Wrapper = styled.aside<{ mobile: boolean }>`
   position: ${props => props.mobile ? 'absolute' : 'relative'};
   width: ${props => props.mobile ? '300px' : ''};
   height: 100%;
@@ -37,7 +37,13 @@ const TabContent = styled.div<{ active: boolean }>`
   overflow: auto;
 `;
 
-const Sidebar: React.FC<{ active: boolean, mobile: boolean }> = React.memo(({ active, mobile }) => {
+type PropsType = {
+  active: boolean,
+  mobile: boolean,
+  setActive: (arg: boolean) => void
+}
+
+const Sidebar: React.FC<PropsType> = React.memo(({ active, setActive, mobile }) => {
 
   const [activeTab, setActiveTab] = useState(2)
 
@@ -55,7 +61,7 @@ const Sidebar: React.FC<{ active: boolean, mobile: boolean }> = React.memo(({ ac
         <>
           <TabType active={activeTab === 2} onClick={() => toggleTab(2)}>CHATS</TabType>
           <TabContent active={activeTab === 2}>
-            <Rooms />
+            <Rooms mobile={mobile} setActive={setActive} />
           </TabContent>
         </>
       </SelectTab>
