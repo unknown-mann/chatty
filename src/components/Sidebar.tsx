@@ -8,7 +8,7 @@ const Wrapper = styled.aside<{ mobile: boolean }>`
   width: ${props => props.mobile ? '300px' : ''};
   height: 100%;
   @media (max-width: 768px) {
-    height: 101%;
+    height: 103%;
   }
   background-color: #f2f2f2;
   border-right: 1px solid #dadee0;
