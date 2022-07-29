@@ -151,6 +151,9 @@ const MessageContent = styled.div`
 
 const TimeStamp = styled.div`
     width: 50px;
+    @media (max-width: 768px) {
+        margin-right: 10px;
+    };
     font-size: 12px;
 `;
 
@@ -296,11 +299,11 @@ const ChatWindow: React.FC<PropsType> = ({ userMe, setActive, mobile }) => {
                 <PickButton onClick={handlePick}>
                     <IoIosAttach size="25px" color='gray' />
                 </PickButton>
-                <input 
-                onChange={handleSetFile} 
-                type="file" className='hidden' 
-                ref={filePicker}
-                accept="image/*,.png,.jpg,.gif,.web" />
+                <input
+                    onChange={handleSetFile}
+                    type="file" className='hidden'
+                    ref={filePicker}
+                    accept="image/*,.png,.jpg,.gif,.web" />
                 <TextArea value={text} onChange={evt => setText(evt.target.value)} whileFocus={{ height: 150 }} />
                 <SendButton disabled={!text} onClick={handleSendMessage}>Send</SendButton>
             </TextWrapper>
