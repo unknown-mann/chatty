@@ -21,7 +21,7 @@ const Container = styled.div`
     max-height: 100vh;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 80px;
+    grid-template-rows: 1fr;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
 `;
@@ -31,7 +31,7 @@ const Wrapper = styled.section`
 
 const Welcome = styled.div`
     width: 100%;
-    height: 100%;
+    // height: 100%;
     padding-top: 20%;
     font-size: 30px;
     text-align: center;
@@ -103,7 +103,7 @@ const Chat = () => {
                                 </Welcome>}
                         </Wrapper>
                     </Main>
-                    <Footer />
+                    <Footer />                    
                 </Container>
                 <Socket clientRefWrapper={clientRefWrapper} />
             </>
