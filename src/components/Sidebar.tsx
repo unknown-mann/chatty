@@ -9,6 +9,7 @@ const Wrapper = styled.aside<{ mobile: boolean }>`
   height: 100%;
   background-color: #f2f2f2;
   border-right: 1px solid #dadee0;
+  z-index: 1;
 `;
 
 const SelectTab = styled.div`
