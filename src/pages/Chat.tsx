@@ -21,7 +21,7 @@ const Container = styled.div`
     max-height: 100vh;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 8fr 1fr;
+    grid-template-rows: 1fr 80px;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
 `;
