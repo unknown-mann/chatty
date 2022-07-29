@@ -19,6 +19,9 @@ const Modal = styled.div`
     justify-content: space-around;
     align-items: center;
     margin-bottom: 5%;
+    @media (max-width: 768px) {
+        margin-bottom: 10%;
+    }
     font-family: Roboto, sans-serif;
     color: rgba(0, 0, 0, 0.6);
     background-image: url(${loginbg});
@@ -64,14 +67,14 @@ const Login = () => {
                 <Title>
                     Welcome to Chatty
                 </Title>
-                <Link href='https://chatty-back.herokuapp.com/oauth2/authorize/google?redirect_uri=http://localhost:3000/redirect'>
-                    <FcGoogle size="25px" />
-                    <span>Login with Google</span>
-                </Link>
-                {/* <Link href='https://chatty-back.herokuapp.com/oauth2/authorize/google?redirect_uri=https://chatty-beige.vercel.app/redirect'>
+                {/* <Link href='https://chatty-back.herokuapp.com/oauth2/authorize/google?redirect_uri=http://localhost:3000/redirect'>
                     <FcGoogle size="25px" />
                     <span>Login with Google</span>
                 </Link> */}
+                <Link href='https://chatty-back.herokuapp.com/oauth2/authorize/google?redirect_uri=https://chatty-beige.vercel.app/redirect'>
+                    <FcGoogle size="25px" />
+                    <span>Login with Google</span>
+                </Link>
             </Modal>
         </Wrapper>
     );
