@@ -6,7 +6,7 @@ import Friends from "./Friends";
 const Wrapper = styled.aside<{ mobile: boolean }>`
   position: ${props => props.mobile ? 'absolute' : 'relative'};
   width: ${props => props.mobile ? '300px' : ''};
-  // height: 100%;
+  height: 100%;
   background-color: #f2f2f2;
   border-right: 1px solid #dadee0;
   z-index: 1;
