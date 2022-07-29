@@ -30,6 +30,9 @@ const userSlice = createSlice({
         setCurrentChat(state, action) {
             state.activeChat = action.payload
         },
+        removeCurrentChat(state) {
+            state.activeChat = initialState.activeChat
+        },
         setMessages(state, action) {
             state.messages = state.messages.concat(action.payload)
         },
@@ -49,6 +52,9 @@ const userSlice = createSlice({
         setRooms(state, action) {
             state.rooms = action.payload
         },
+        removeRoom(state, action) {
+            state.rooms = state.rooms.filter(room => room.id !== action.payload)
+        },
         setUsersBySearch(state, action) {
             state.usersBySearch = action.payload
         },
@@ -61,6 +67,12 @@ const userSlice = createSlice({
             if (friend) {
                 friend.online = true
             }
+            const rooms = state.rooms
+            rooms.forEach(room => room.users.forEach(user => {
+                if (user.id === action.payload.id) {
+                    user.online = true
+                }
+            }))
         },
         setOffline(state, action) {
             const user = state.usersBySearch.find(user => user.id === action.payload.id)
@@ -71,6 +83,12 @@ const userSlice = createSlice({
             if (friend) {
                 friend.online = false
             }
+            const rooms = state.rooms
+            rooms.forEach(room => room.users.forEach(user => {
+                if (user.id === action.payload.id) {
+                    user.online = false
+                }
+            }))
         },
         setFriends(state, action) {
             state.friends = action.payload
@@ -80,4 +98,4 @@ const userSlice = createSlice({
 
 export default userSlice.reducer
 
-export const { setCurrentChat, setMessages, removeMessages, setCurrentUser, setRoom, setRooms, setUsersBySearch, setOnline, setOffline, setFriends } = userSlice.actions
+export const { setCurrentChat, setMessages, removeMessages, setCurrentUser, setRoom, setRooms, setUsersBySearch, setOnline, setOffline, setFriends, removeRoom, removeCurrentChat } = userSlice.actions

@@ -27,12 +27,12 @@ const UsersList = styled.ul`
     overflow: auto;
 `;
 
-const UserItem = styled.li<{ isDisabled: boolean, status: boolean }>`
+const UserItem = styled.li<{ disabled: boolean, status: boolean }>`
     position: relative;
     display: flex;
     align-items: center;
     padding: 15px 20px;
-    opacity: ${props => props.isDisabled ? '0.5' : ''};
+    opacity: ${props => props.disabled ? '0.5' : ''};
     :not(:last-child) {
         border-bottom: 1px solid #DADEE0;
     };
@@ -187,7 +187,7 @@ const Users: React.FC = () => {
                     {!usersLoading && usersBySearch &&
                         usersBySearch.map(user => (
                             <UserItem
-                                isDisabled={loading}
+                                disabled={loading}
                                 status={user.online}
                                 key={user.googleImgUrl}
                             >

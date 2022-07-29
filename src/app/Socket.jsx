@@ -53,10 +53,8 @@ const Socket = ({ clientRefWrapper, client }) => {
               }
             }
           } else if (msg.type === 'ONLINE') {
-            console.log("Online: ", msg.payload)
             dispatch(setOnline(msg.payload))
           } else if (msg.type === 'OFFLINE') {
-            console.log("Offline: ", msg.payload)
             dispatch(setOffline(msg.payload))
           }
         }}

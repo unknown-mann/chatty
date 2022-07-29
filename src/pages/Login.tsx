@@ -20,7 +20,7 @@ const Modal = styled.div`
     align-items: center;
     margin-bottom: 5%;
     @media (max-width: 768px) {
-        margin-bottom: 10%;
+        margin-bottom: 20%;
     }
     font-family: Roboto, sans-serif;
     color: rgba(0, 0, 0, 0.6);

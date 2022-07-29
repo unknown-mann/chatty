@@ -17,6 +17,7 @@ import { useMatchMedia } from '../hooks/useMatchMedia';
 import { BeatLoader } from 'react-spinners';
 
 const Container = styled.div`
+    min-height: 100%;
     height: 100vh;
     max-height: 100vh;
     display: grid;

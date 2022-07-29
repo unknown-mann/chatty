@@ -55,7 +55,7 @@ const Sidebar: React.FC<PropsType> = React.memo(({ active, setActive, mobile }) 
         <>
           <TabType active={activeTab === 1} onClick={() => { toggleTab(1) }}>FRIENDS</TabType>
           <TabContent active={activeTab === 1}>
-            {activeTab === 1 && <Friends />}
+            <Friends />
           </TabContent>
         </>
         <>

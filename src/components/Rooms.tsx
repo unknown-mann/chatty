@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BeatLoader } from 'react-spinners';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { removeMessages, setCurrentChat, setRoom, setRooms } from "../app/usersSlice";
+import { removeMessages, setCurrentChat, setRoom, setRooms, removeRoom, removeCurrentChat } from "../app/usersSlice";
 import { IRoom, IRooms } from '../types';
 import { useMutation, useQuery } from '@apollo/client';
 import { MY_ROOMS } from '../apollo/requests';
@@ -17,16 +17,29 @@ const UsersList = styled.ul`
     color: #475466;
 `;
 
-const FriendItem = styled.li<{ active: boolean }>`
+const FriendItem = styled.li<{ active: boolean, disabled: boolean, status: boolean }>`
     position: relative;
     display: flex;
     align-items: center;
     padding: 15px 20px;
     font-size: 16px;
     color: black;
+    opacity: ${props => props.disabled ? '0.5' : ''};
     background: ${(props) => (props.active ? "rgb(206, 237, 245)" : "")};
     :hover {
         background: rgba(206, 237, 245, 0.6);
+    };
+    &:before {
+        position: absolute;
+        top: 45px;
+        left: 50px;
+        content: '';
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border: 1px solid white;
+        border-radius: 50%;
+        background-color: ${props => props.status ? 'green' : 'red'};
     }
 `;
 
@@ -100,27 +113,8 @@ const Rooms: React.FC<PropsType> = ({ mobile, setActive }) => {
     const [activeChat, setActiveChat] = useState<number>();
 
     const currentUser = useAppSelector(state => state.users.currentUser)
+    const currentChat = useAppSelector(state => state.users.activeChat)
     const myRooms = useAppSelector(state => state.users.rooms)
-
-    const [deleteRoom] = useMutation(DELETE_ROOM, {
-        onCompleted: data => {
-            console.log(data)
-        }
-    })
-
-    const handleDeleteRoom = (id: number) => async (evt: React.MouseEvent<HTMLButtonElement>) => {
-        evt.stopPropagation()
-        // eslint-disable-next-line no-restricted-globals
-        const result = confirm('Clear chat?')
-        if (result) {
-            await deleteRoom({
-                variables: {
-                    roomId: id
-                }
-            })
-            console.log('deleted')
-        }
-    }
 
     const {
         data: rooms,
@@ -138,8 +132,32 @@ const Rooms: React.FC<PropsType> = ({ mobile, setActive }) => {
         dispatch(setRooms(rooms?.myRooms))
     }
 
+    const [deleteRoom, { loading }] = useMutation(DELETE_ROOM)
+
+    const handleDeleteRoom = (id: number) => async (evt: React.MouseEvent<HTMLButtonElement>) => {
+        evt.stopPropagation()
+        // eslint-disable-next-line no-restricted-globals
+        const result = confirm('Clear chat?')
+        if (result) {
+            await deleteRoom({
+                variables: {
+                    roomId: id
+                }
+            });
+            myRooms.filter(room => room.id !== id);
+            dispatch(removeRoom(id));
+            dispatch(removeCurrentChat());
+            refetchRooms({
+                pageNum: 0,
+                pageSize: 10
+            });
+        }
+    }
+
     const handleSetActiveRoom = (room: IRoom) => {
-        dispatch(removeMessages())
+        if (currentChat.id !== room.id) {
+            dispatch(removeMessages())
+        }
         setActiveChat(room.id);
         dispatch(setCurrentChat(room))
         const newRoom = Object.assign({}, room)
@@ -153,6 +171,7 @@ const Rooms: React.FC<PropsType> = ({ mobile, setActive }) => {
     const getUserAvatar = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.googleImgUrl
     const getUserFirstname = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.firstname
     const getUserLastname = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.lastname
+    const getUserStatus = (room: IRoom) => room.users.find(user => user.id !== currentUser.id)?.online
 
     let roomsList
 
@@ -172,6 +191,8 @@ const Rooms: React.FC<PropsType> = ({ mobile, setActive }) => {
                             key={room.id}
                             onClick={() => handleSetActiveRoom(room)}
                             active={activeChat === room.id}
+                            disabled={loading}
+                            status={Boolean(getUserStatus(room))}
                         >
                             <Avatar src={getUserAvatar(room)} />
                             <div style={{ width: '100%', overflow: 'hidden' }}>

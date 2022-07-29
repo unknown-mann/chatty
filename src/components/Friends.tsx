@@ -19,7 +19,7 @@ const UsersList = styled.ul`
   color: #475466;
 `;
 
-const ListItem = styled.li<{ isDisabled: boolean, active: boolean, status: boolean }>`
+const ListItem = styled.li<{ disabled: boolean, active: boolean, status: boolean }>`
     position: relative;
     display: flex;
     align-items: center;
@@ -146,7 +146,7 @@ const Friends: React.FC<any> = ({ client }) => {
                     <ListItem
                         key={friend.id}
                         onClick={() => { handleSetNewChat(friend); setActiveChat(friend.id) }}
-                        isDisabled={deleteLoading}
+                        disabled={deleteLoading}
                         active={activeChat === friend.id}
                         status={friend.online}
                     >

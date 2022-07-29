@@ -20,6 +20,7 @@ export const MY_FRIENDS = gql`
             firstname
             lastname
             googleImgUrl
+            online
         }
     }
 `;
@@ -130,6 +131,7 @@ export const MY_ROOMS = gql`
                 firstname
                 lastname
                 googleImgUrl
+                online
             }
             isMultiChat
             lastMessage {
@@ -211,8 +213,6 @@ export const ROOM_BY_ID = gql`
 
 export const DELETE_ROOM = gql`
     mutation DeleteRoom($roomId: Int) {
-        deleteRoom(roomId: $roomId) {
-            Boolean
-        }
+        deleteRoom(roomId: $roomId)
     }
 `;

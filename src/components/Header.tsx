@@ -65,8 +65,8 @@ const ShowButton = styled(Button)`
 
 const RequestsNum = styled.span<{ reqs: boolean }>`
     position: absolute;
-    top: 18px;
-    right: 1px;
+    top: 19px;
+    right: 3px;
     width: 10px;
     height: 10px;
     font-size: 8px;
