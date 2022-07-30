@@ -18,7 +18,7 @@
 
 ## Используемые технологии:
 
-### Front
+### Front-end
 
 * `TypeScript`
 * `React`
@@ -26,7 +26,7 @@
 * `Apollo`
 * `Styled Components`
 
-### Back
+### Back-end
 
 * `Kotlin`
 * `Spring Boot`
@@ -88,7 +88,8 @@
 
 Поле My profile содержит информацию об текущем пользователе:
 
-<img width="208" alt="Screen Shot 2022-07-31 at 01 51 20" src="https://user-images.githubusercontent.com/99764749/181994392-f8971c2d-88fe-40d9-89b9-65066b72f839.png">
+<img width="525" alt="Screen Shot 2022-07-31 at 01 57 29" src="https://user-images.githubusercontent.com/99764749/181994543-27aef7cf-a817-4726-ab78-4fff98597e79.png">
+
 
 
 
