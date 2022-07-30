@@ -1,46 +1,63 @@
-# Getting Started with Create React App
+# Chatty - чат мессенджер
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) TS template.
+Данный проект был сконфигурирован при помощи шаблона `cra-template-redux-typescript`
 
-## Available Scripts
+Приложение адаптировано под desktop, tablet, mobile
 
-In the project directory, you can run:
+Приложение разрабатывалось совместно с back-end разработчиком, мой вклад в разработку включает в себя полностью клиентскую часть
 
+
+## Установка
+
+Склонируйте проект себе, загрузите все необходимые зависимости командой:
+### `npm i`
+
+и запустите командой:
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Используемые технологии:
 
-### `npm test`
+### Front
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* `TypeScript`
+* `React`
+* `Redux RTK Slice` 
+* `Apollo`
+* `Styled Components`
 
-### `npm run build`
+### Back
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+* `Kotlin`
+* `Spring Boot`
+* `GraphQL`
+* `Postgres`
+* `STOMP Over WebSocket`
+* `Heroku`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Описание проекта
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Страница авторизации 
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+При первом открытии приложения вы попадете на страницу с авторизацией. Авторизоваться можно через учетную запись Google. Имя пользователя, а также аватар будут установлены исходя из данных учетной записи Google. При повторном открытии приложения информация об авторизации будет проверяться, повторная авторизация потребуется в случае разлогирования или при смене браузера. При успешной авторизации вы будете перенаправлены на страницу с чатом.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+<img width="617" alt="Screen Shot 2022-07-31 at 00 22 58" src="https://user-images.githubusercontent.com/99764749/181937117-58ba3b17-f48e-4f98-a542-4e573b2bac37.png">
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
+### Чат
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Пройдя авторизацию вам откроется страница чата с приветствием, для того, чтобы начать вести диалог вам нужно найти интересующего вас пользователя и добавить его в друзья, либо начать диалог с одним из ранее добавленных пользователей во вкладке FRIENDS или открыть существующий диалог во вкладке CHATS.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+На главной странице чата доступны следующие возможности:
+* Статус пользователя: online/offline;
+* Количество непрочитанных сообщений от определенного пользователя;
+* Удаление пользователя из списка друзей;
+* Удаление одного чата;
+* Количество новых заявок в друзья.  
+
+<img width="1440" alt="Screen Shot 2022-07-31 at 01 04 12" src="https://user-images.githubusercontent.com/99764749/181941704-87cde429-7c2f-4237-9cd5-2ee48fcd7979.png">
+
+
+
